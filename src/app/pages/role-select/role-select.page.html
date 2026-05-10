@@ -1,0 +1,44 @@
+<ion-content [fullscreen]="true" class="role-content">
+  <div class="role-container">
+
+    <!-- Header -->
+    <div class="role-header">
+      <ion-icon name="bed-outline" class="header-icon"></ion-icon>
+      <h1 class="header-title">Welcome to <span>CottonCart</span></h1>
+      <p class="header-sub">Tell us who you are to get started</p>
+    </div>
+
+    <!-- Role Cards -->
+    <div class="role-cards">
+
+      <!-- Customer Card -->
+      <div class="role-card" (click)="selectRole('customer')">
+        <div class="card-icon-wrapper customer">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <div class="card-content">
+          <h2>I'm a Customer</h2>
+          <p>Browse nearby shops & order custom mattresses</p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+      </div>
+
+      <!-- Shop Owner Card -->
+      <div class="role-card" (click)="selectRole('shop')">
+        <div class="card-icon-wrapper shop">
+          <ion-icon name="storefront-outline"></ion-icon>
+        </div>
+        <div class="card-content">
+          <h2>I'm a Shop Owner</h2>
+          <p>Manage your shop, catalog & receive orders</p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+      </div>
+
+    </div>
+
+    <!-- Footer note -->
+    <p class="footer-note">You can switch roles anytime from settings</p>
+
+  </div>
+</ion-content>

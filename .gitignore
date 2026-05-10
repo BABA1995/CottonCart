@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+www/
+.angular/
+
+# Capacitor native
+android/
+ios/
+
+# Environment secrets (IMPORTANT - never commit production keys)
+src/environments/environment.prod.ts
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ionic
+.ionic/

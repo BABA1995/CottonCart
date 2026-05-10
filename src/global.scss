@@ -1,0 +1,42 @@
+@use "theme/variables.scss";
+
+* {
+  box-sizing: border-box;
+}
+
+ion-content {
+  --background: #FAFAFA;
+}
+
+/* Card styles */
+.cc-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin: 8px 0;
+}
+
+/* Section title */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  margin: 16px 0 8px;
+}
+
+/* Badge */
+.cc-badge {
+  background: var(--ion-color-secondary);
+  color: #000;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Green CTA button */
+.btn-primary-full {
+  --background: var(--ion-color-primary);
+  --border-radius: 10px;
+  font-weight: 700;
+  height: 50px;
+}

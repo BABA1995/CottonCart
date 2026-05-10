@@ -1,0 +1,67 @@
+/* Full screen green background */
+.splash-content {
+  --background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+}
+
+/* Centered column layout */
+.splash-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  animation: fadeIn 0.8s ease-in;
+}
+
+/* Cotton/bed icon circle */
+.logo-wrapper {
+  width: 110px;
+  height: 110px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.logo-icon {
+  font-size: 58px;
+  color: #ffffff;
+}
+
+/* App name */
+.app-name {
+  font-size: 36px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  margin: 0 0 8px;
+}
+
+/* Tagline */
+.tagline {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin: 0 0 60px;
+}
+
+/* Spinner at bottom */
+.spinner-wrapper {
+  position: absolute;
+  bottom: 60px;
+
+  ion-spinner {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
