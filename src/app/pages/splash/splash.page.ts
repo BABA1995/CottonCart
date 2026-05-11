@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -13,15 +13,16 @@ import { bedOutline } from 'ionicons/icons';
 })
 export class SplashPage implements OnInit {
 
-  constructor(private router: Router) {
-    // Register the bed icon for use in the template
+  constructor(private router: Router, private ngZone: NgZone) {
     addIcons({ bedOutline });
   }
 
   ngOnInit() {
-    // Wait 2.5 seconds then navigate to role selection screen
     setTimeout(() => {
-      this.router.navigateByUrl('/role-select', { replaceUrl: true });
+      // NgZone ensures navigation runs inside Angular's change detection on mobile
+      this.ngZone.run(() => {
+        this.router.navigate(['/role-select'], { replaceUrl: true });
+      });
     }, 2500);
   }
 }

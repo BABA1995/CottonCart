@@ -1,5 +1,7 @@
 {
   "name": "CottonCart",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }
