@@ -1,0 +1,161 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="transparent-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button color="dark" [defaultHref]="'/customer/shop/' + shopId"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- Loading -->
+  <div class="center-state" *ngIf="loading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading item…</p>
+  </div>
+
+  <ng-container *ngIf="!loading && item">
+
+    <!-- ── Photo Carousel ──────────────────────────────────────────────── -->
+    <div class="photo-section">
+      <!-- Main photo -->
+      <div class="main-photo">
+        <img *ngIf="item.images?.length" [src]="item.images[photoIndex]" [alt]="item.name" />
+        <div class="no-photo" *ngIf="!item.images?.length">
+          <ion-icon name="cube-outline"></ion-icon>
+          <span>No Photo</span>
+        </div>
+
+        <!-- Nav arrows (only if > 1 photo) -->
+        <button class="photo-nav prev" (click)="prevPhoto()" *ngIf="(item.images?.length || 0) > 1">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button class="photo-nav next" (click)="nextPhoto()" *ngIf="(item.images?.length || 0) > 1">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+
+        <!-- Discount badge -->
+        <div class="discount-badge" *ngIf="discountPct() > 0">{{ discountPct() }}% OFF</div>
+      </div>
+
+      <!-- Dots -->
+      <div class="photo-dots" *ngIf="(item.images?.length || 0) > 1">
+        <span *ngFor="let img of item.images; let i = index"
+          class="dot" [class.active]="photoIndex === i"></span>
+      </div>
+
+      <!-- Thumbnail strip -->
+      <div class="thumb-strip" *ngIf="(item.images?.length || 0) > 1">
+        <img *ngFor="let img of item.images; let i = index"
+          [src]="img" [class.active]="photoIndex === i"
+          (click)="photoIndex = i" />
+      </div>
+    </div>
+
+    <!-- ── Item Info ────────────────────────────────────────────────────── -->
+    <div class="detail-body">
+
+      <!-- Category + stock -->
+      <div class="top-row">
+        <span class="cat-badge">{{ categoryLabel(item.category) }}</span>
+        <span class="stock-badge" [class.out]="item.stockCount === 0">
+          <ion-icon [name]="item.stockCount > 0 ? 'checkmark-circle-outline' : 'close-circle-outline'"></ion-icon>
+          {{ item.stockCount > 0 ? item.stockCount + ' in stock' : 'Out of stock' }}
+        </span>
+      </div>
+
+      <!-- Name -->
+      <h1 class="item-name">{{ item.name }}</h1>
+
+      <!-- Price -->
+      <div class="price-row">
+        <span class="price">₹{{ item.price | number:'1.0-0' }}</span>
+        <span class="mrp" *ngIf="item.mrp && item.mrp > item.price">₹{{ item.mrp | number:'1.0-0' }}</span>
+        <span class="saving" *ngIf="discountPct() > 0">Save {{ discountPct() }}%</span>
+      </div>
+
+      <!-- Description -->
+      <p class="description">{{ item.description }}</p>
+
+      <!-- ── Specs grid ──────────────────────────────────────────────── -->
+      <div class="specs-card">
+        <div class="specs-title">Product Details</div>
+        <div class="specs-grid">
+
+          <div class="spec-row">
+            <span class="spec-label">Size</span>
+            <span class="spec-val">{{ item.sizeLabel }}</span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Fabric</span>
+            <span class="spec-val">{{ item.fabricType }}</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.fabricGsm">
+            <span class="spec-label">GSM</span>
+            <span class="spec-val">{{ item.fabricGsm }} g/m²</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.threadCount">
+            <span class="spec-label">Thread Count</span>
+            <span class="spec-val">{{ item.threadCount }} TC</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.fabricMetersUsed">
+            <span class="spec-label">Fabric Used</span>
+            <span class="spec-val">{{ item.fabricMetersUsed }} metres</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.color">
+            <span class="spec-label">Colour</span>
+            <span class="spec-val">{{ item.color }}</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.hasFilling && item.cottonType">
+            <span class="spec-label">Fill Type</span>
+            <span class="spec-val">{{ cottonLabel(item.cottonType) }}</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.hasFilling && item.fillWeightKg">
+            <span class="spec-label">Fill Weight</span>
+            <span class="spec-val">{{ item.fillWeightKg }} kg</span>
+          </div>
+
+          <div class="spec-row" *ngIf="item.careInstructions">
+            <span class="spec-label">Care</span>
+            <span class="spec-val">{{ item.careInstructions }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Shop info ───────────────────────────────────────────────── -->
+      <div class="shop-row" *ngIf="shop">
+        <div class="shop-avatar">{{ shop.name.charAt(0).toUpperCase() }}</div>
+        <div class="shop-meta">
+          <span class="shop-name">{{ shop.name }}</span>
+          <span class="shop-city">{{ shop.city }}</span>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <div style="height: 120px;"></div>
+</ion-content>
+
+<!-- ── CTA Bar ────────────────────────────────────────────────────────────── -->
+<div class="cta-bar" *ngIf="!loading && item && item.stockCount > 0">
+  <button class="cta-call" (click)="callShop()">
+    <ion-icon name="call-outline"></ion-icon>
+  </button>
+  <button class="cta-whatsapp" (click)="enquireWhatsApp()">
+    <ion-icon name="logo-whatsapp"></ion-icon>
+    Enquire on WhatsApp
+  </button>
+</div>
+
+<div class="cta-bar out-of-stock" *ngIf="!loading && item && item.stockCount === 0">
+  <span>This item is currently out of stock</span>
+</div>

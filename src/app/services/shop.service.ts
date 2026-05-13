@@ -5,6 +5,7 @@ import {
   collectionData,
   doc,
   docData,
+  getDoc,
   setDoc,
   query,
   where,
@@ -53,6 +54,13 @@ export class ShopService {
   getMyShop(uid: string): Observable<ShopModel | null> {
     const ref = doc(this.firestore, 'shops', uid);
     return docData(ref, { idField: 'id' }) as Observable<ShopModel | null>;
+  }
+
+  /** Single shop by ID — one-time fetch (Promise, not Observable) */
+  async getShopByIdOnce(id: string): Promise<ShopModel | null> {
+    const snap = await getDoc(doc(this.firestore, 'shops', id));
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() } as ShopModel;
   }
 
   /** Shop owner: create or update their shop document */

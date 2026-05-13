@@ -1,0 +1,98 @@
+ion-header ion-toolbar { --background: var(--ion-color-primary); --color: white; }
+
+.form-wrapper { padding: 12px 12px 0; }
+
+.form-section {
+  background: white; border-radius: 14px; padding: 14px;
+  margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+
+  .section-label {
+    font-size: 12px; font-weight: 700; color: var(--ion-color-medium);
+    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px;
+  }
+
+  .hint {
+    font-size: 11px; color: var(--ion-color-medium); margin: 6px 0 0;
+    line-height: 1.5;
+  }
+}
+
+.field-item {
+  --background: var(--ion-color-light); --border-color: transparent;
+  border-radius: 10px; margin-bottom: 8px;
+}
+
+.toggle-item {
+  --background: var(--ion-color-light); border-radius: 10px; margin-top: 4px;
+  h3 { font-size: 14px; font-weight: 600; }
+  p  { font-size: 12px; color: var(--ion-color-medium); }
+}
+
+.two-col   { display: flex; gap: 8px; > * { flex: 1; } }
+.three-col { display: flex; gap: 8px; > * { flex: 1; } }
+
+// ── Photos ───────────────────────────────────────────────────────────────────
+
+.upload-progress {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--ion-color-medium); margin-bottom: 10px;
+}
+
+.photo-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+.photo-slot {
+  position: relative; width: 90px; height: 90px;
+  border-radius: 10px; overflow: hidden;
+  background: var(--ion-color-light);
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+
+  .remove-photo {
+    position: absolute; top: 2px; right: 2px;
+    background: none; border: none; padding: 0; cursor: pointer;
+    ion-icon { font-size: 22px; color: white; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+  }
+}
+
+.photo-add {
+  width: 90px; height: 90px; border-radius: 10px;
+  border: 2px dashed var(--ion-color-medium-tint);
+  background: var(--ion-color-light); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  ion-icon { font-size: 24px; color: var(--ion-color-medium); }
+  span { font-size: 11px; color: var(--ion-color-medium); font-weight: 600; }
+}
+
+// ── Cotton fill grid ─────────────────────────────────────────────────────────
+
+.cotton-grid {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+.cotton-btn {
+  flex: 1; min-width: 90px; border-radius: 12px; border: 2px solid var(--ion-color-light-shade);
+  background: var(--ion-color-light); padding: 10px 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+
+  .cotton-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+    background: var(--ion-color-light-shade); color: var(--ion-color-medium-shade);
+    padding: 2px 6px; border-radius: 20px;
+  }
+  .cotton-name { font-size: 12px; font-weight: 600; color: var(--ion-color-dark); text-align: center; }
+
+  &.active {
+    border-color: var(--ion-color-primary);
+    background: rgba(var(--ion-color-primary-rgb), .08);
+    .cotton-badge { background: var(--ion-color-primary); color: white; }
+    .cotton-name  { color: var(--ion-color-primary); }
+  }
+}
+
+// ── Save button ──────────────────────────────────────────────────────────────
+
+.save-btn {
+  --border-radius: 14px; height: 52px; font-size: 16px; font-weight: 700; margin-top: 4px;
+}

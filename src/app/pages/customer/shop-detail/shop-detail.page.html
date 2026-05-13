@@ -154,6 +154,51 @@
 
     </div>
 
+    <!-- ── Shop Items Section ────────────────── -->
+    <div class="items-section">
+      <div class="section-header">
+        <h2>Shop Items</h2>
+        <p>Ready-made & available items from this shop</p>
+      </div>
+
+      <div class="center-state-sm" *ngIf="itemsLoading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div class="no-items" *ngIf="!itemsLoading && shopItems.length === 0">
+        <ion-icon name="cube-outline"></ion-icon>
+        <p>No items listed yet</p>
+      </div>
+
+      <div class="items-grid" *ngIf="!itemsLoading && shopItems.length > 0">
+        <div class="item-card" *ngFor="let item of shopItems" (click)="goToItemDetail(item)">
+
+          <!-- Photo -->
+          <div class="item-thumb">
+            <img *ngIf="item.images?.length" [src]="item.images[0]" [alt]="item.name" />
+            <div class="no-thumb" *ngIf="!item.images?.length">
+              <ion-icon name="cube-outline"></ion-icon>
+            </div>
+            <div class="discount-tag" *ngIf="discountPct(item) > 0">{{ discountPct(item) }}% off</div>
+          </div>
+
+          <!-- Info -->
+          <div class="item-info">
+            <span class="item-cat">{{ categoryMap[item.category]?.label || item.category }}</span>
+            <p class="item-name">{{ item.name }}</p>
+            <p class="item-size">{{ item.sizeLabel }}</p>
+            <div class="item-price-row">
+              <span class="item-price">₹{{ item.price | number:'1.0-0' }}</span>
+              <span class="item-mrp" *ngIf="item.mrp && item.mrp > item.price">₹{{ item.mrp | number:'1.0-0' }}</span>
+            </div>
+            <span class="stock-tag" [class.low]="item.stockCount > 0 && item.stockCount <= 3">
+              {{ item.stockCount === 0 ? 'Out of stock' : item.stockCount + ' left' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bottom spacer -->
     <div style="height: 60px;"></div>
 

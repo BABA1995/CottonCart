@@ -23,7 +23,11 @@ export const routes: Routes = [
   { path: 'shop/dashboard', loadComponent: () => import('./pages/shop/dashboard/dashboard.page').then(m => m.DashboardPage) },
   { path: 'shop/orders',    loadComponent: () => import('./pages/shop/orders/orders.page').then(m => m.OrdersPage) },
   { path: 'shop/catalog',   loadComponent: () => import('./pages/shop/catalog/catalog.page').then(m => m.CatalogPage) },
+  { path: 'shop/item-form', loadComponent: () => import('./pages/shop/item-form/item-form.page').then(m => m.ItemFormPage) },
   { path: 'shop/profile',   loadComponent: () => import('./pages/shop/shop-profile/shop-profile.page').then(m => m.ShopProfilePage) },
+
+  // Customer item detail
+  { path: 'customer/item-detail/:shopId/:itemId', loadComponent: () => import('./pages/customer/item-detail/item-detail.page').then(m => m.ItemDetailPage) },
 
   // Fallback
   { path: '**', redirectTo: 'splash' }

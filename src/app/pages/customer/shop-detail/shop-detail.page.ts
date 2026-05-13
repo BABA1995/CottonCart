@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgIf, NgFor, DecimalPipe } from '@angular/common';
+import { NgIf, NgFor, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonButton, IonIcon, IonSpinner, IonChip, IonLabel,
-  IonCard, IonCardContent,
+  IonCard, IonCardContent, IonBadge,
   NavController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -16,7 +16,9 @@ import {
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { ShopService } from '../../../services/shop.service';
+import { ItemService } from '../../../services/item.service';
 import { ShopModel } from '../../../models/shop.model';
+import { ShopItem, CATEGORY_MAP } from '../../../models/shop-item.model';
 
 // Each mattress type the shop can offer
 interface ProductCard {
@@ -66,8 +68,8 @@ const PRODUCT_INFO: Record<string, ProductCard> = {
   imports: [
     IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonButton, IonIcon, IonSpinner, IonChip, IonLabel,
-    IonCard, IonCardContent,
-    NgIf, NgFor, DecimalPipe
+    IonCard, IonCardContent, IonBadge,
+    NgIf, NgFor, DecimalPipe, TitleCasePipe
   ],
 })
 export class ShopDetailPage implements OnInit, OnDestroy {
@@ -76,11 +78,18 @@ export class ShopDetailPage implements OnInit, OnDestroy {
   loading                = true;
   products: ProductCard[] = [];
 
-  private sub?: Subscription;
+  shopItems:      ShopItem[] = [];
+  itemsLoading    = true;
+
+  readonly categoryMap = CATEGORY_MAP;
+
+  private sub?:      Subscription;
+  private itemsSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private shopService: ShopService,
+    private itemService: ItemService,
     private navCtrl: NavController,
     private toastCtrl: ToastController
   ) {
@@ -107,9 +116,21 @@ export class ShopDetailPage implements OnInit, OnDestroy {
         this.showToast('Could not load shop details.', 'danger');
       }
     });
+
+    // Load active catalog items for this shop
+    this.itemsSub = this.itemService.getActiveShopItems(id).subscribe({
+      next: items => {
+        this.shopItems   = items;
+        this.itemsLoading = false;
+      },
+      error: () => { this.itemsLoading = false; }
+    });
   }
 
-  ngOnDestroy() { this.sub?.unsubscribe(); }
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+    this.itemsSub?.unsubscribe();
+  }
 
   // Build product cards from the shop's tags
   buildProductCards(tags: string[]): ProductCard[] {
@@ -124,6 +145,15 @@ export class ShopDetailPage implements OnInit, OnDestroy {
       `/customer/order-form/${this.shop!.id}`,
       { queryParams: { type: productType } }
     );
+  }
+
+  goToItemDetail(item: ShopItem) {
+    this.navCtrl.navigateForward(`/customer/item-detail/${this.shop!.id}/${item.id}`);
+  }
+
+  discountPct(item: ShopItem): number {
+    if (!item.mrp || item.mrp <= item.price) return 0;
+    return Math.round(((item.mrp - item.price) / item.mrp) * 100);
   }
 
   // Call the shop

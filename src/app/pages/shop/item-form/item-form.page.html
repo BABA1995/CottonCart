@@ -1,0 +1,191 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/shop/catalog" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditMode ? 'Edit Item' : 'Add Item' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="save()" [disabled]="saving">
+        <ion-spinner *ngIf="saving" name="crescent" style="width:18px;height:18px"></ion-spinner>
+        <ion-icon *ngIf="!saving" name="checkmark-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="form-wrapper">
+
+    <!-- ── Photos ──────────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">Photos (up to 3)</div>
+
+      <!-- Upload progress -->
+      <div class="upload-progress" *ngIf="uploading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <span>Uploading… {{ uploadProgress }}%</span>
+      </div>
+
+      <div class="photo-row">
+        <!-- Saved images -->
+        <div class="photo-slot" *ngFor="let url of savedImages; let i = index">
+          <img [src]="url" alt="Item photo" />
+          <button class="remove-photo" (click)="removeSaved(i)">
+            <ion-icon name="close-circle"></ion-icon>
+          </button>
+        </div>
+
+        <!-- Pending previews -->
+        <div class="photo-slot" *ngFor="let preview of pendingPreviews; let i = index">
+          <img [src]="preview" alt="Preview" />
+          <button class="remove-photo" (click)="removePending(i)">
+            <ion-icon name="close-circle"></ion-icon>
+          </button>
+        </div>
+
+        <!-- Add button -->
+        <button class="photo-add" (click)="triggerFilePicker()" *ngIf="totalImages < 3">
+          <ion-icon name="camera-outline"></ion-icon>
+          <span>Add Photo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Basic Info ──────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">Basic Information</div>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Item Name *</ion-label>
+        <ion-input [(ngModel)]="name" placeholder="e.g. King Size Cotton Bed Sheet"></ion-input>
+      </ion-item>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Category *</ion-label>
+        <ion-select [(ngModel)]="category" placeholder="Select category">
+          <ion-select-option *ngFor="let c of categories" [value]="c.key">{{ c.label }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Description *</ion-label>
+        <ion-textarea [(ngModel)]="description" rows="3"
+          placeholder="Describe the item — material quality, key features…"></ion-textarea>
+      </ion-item>
+    </div>
+
+    <!-- ── Pricing ─────────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">Pricing (₹)</div>
+      <div class="two-col">
+        <ion-item class="field-item">
+          <ion-label position="floating">Selling Price *</ion-label>
+          <ion-input type="number" [(ngModel)]="price" placeholder="599"></ion-input>
+        </ion-item>
+        <ion-item class="field-item">
+          <ion-label position="floating">MRP (optional)</ion-label>
+          <ion-input type="number" [(ngModel)]="mrp" placeholder="799"></ion-input>
+        </ion-item>
+      </div>
+      <p class="hint">Leave MRP blank if there's no discount to show</p>
+    </div>
+
+    <!-- ── Size ───────────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">Size / Dimensions</div>
+      <ion-item class="field-item">
+        <ion-label position="floating">Size Label *</ion-label>
+        <ion-input [(ngModel)]="sizeLabel" placeholder='e.g. "72×108 inches", "King", "Standard 24×16"'></ion-input>
+      </ion-item>
+      <p class="hint">Use inches or cm — be specific so customers know exactly what they're getting</p>
+    </div>
+
+    <!-- ── Fabric ──────────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">Fabric Details</div>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Fabric Type *</ion-label>
+        <ion-select [(ngModel)]="fabricType" placeholder="Select fabric">
+          <ion-select-option *ngFor="let f of fabricTypes" [value]="f">{{ f }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <div class="three-col">
+        <ion-item class="field-item">
+          <ion-label position="floating">GSM</ion-label>
+          <ion-input type="number" [(ngModel)]="fabricGsm" placeholder="180"></ion-input>
+        </ion-item>
+        <ion-item class="field-item">
+          <ion-label position="floating">Thread Count</ion-label>
+          <ion-input type="number" [(ngModel)]="threadCount" placeholder="200"></ion-input>
+        </ion-item>
+        <ion-item class="field-item">
+          <ion-label position="floating">Fabric (metres)</ion-label>
+          <ion-input type="number" [(ngModel)]="fabricMeters" placeholder="4.5"></ion-input>
+        </ion-item>
+      </div>
+      <p class="hint">GSM = weight of fabric per m². Thread count for bed sheets. Metres = fabric used to make this item.</p>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Colour / Pattern</ion-label>
+        <ion-input [(ngModel)]="color" placeholder="e.g. White, Blue Floral, Off-white"></ion-input>
+      </ion-item>
+    </div>
+
+    <!-- ── Filling ─────────────────────────────────────────────────────── -->
+    <div class="form-section" *ngIf="showFilling">
+      <div class="section-label">Filling / Stuffing</div>
+
+      <div class="cotton-grid">
+        <button
+          *ngFor="let c of cottonOpts"
+          class="cotton-btn"
+          [class.active]="cottonType === c.key"
+          (click)="cottonType = c.key">
+          <span class="cotton-badge">{{ c.badge }}</span>
+          <span class="cotton-name">{{ c.label }}</span>
+        </button>
+      </div>
+
+      <ion-item class="field-item" style="margin-top:10px">
+        <ion-label position="floating">Fill Weight (kg)</ion-label>
+        <ion-input type="number" [(ngModel)]="fillWeight" placeholder="e.g. 1.5 for pillow, 15 for mattress"></ion-input>
+      </ion-item>
+    </div>
+
+    <!-- ── Care & Stock ────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">Care & Stock</div>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Care Instructions</ion-label>
+        <ion-input [(ngModel)]="careInstructions" placeholder="e.g. Machine wash cold, do not bleach"></ion-input>
+      </ion-item>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Stock Available *</ion-label>
+        <ion-input type="number" [(ngModel)]="stockCount" placeholder="10"></ion-input>
+      </ion-item>
+
+      <ion-item class="field-item toggle-item">
+        <ion-label>
+          <h3>Visible to Customers</h3>
+          <p>{{ isActive ? 'Item is live and visible in your shop' : 'Item is hidden from customers' }}</p>
+        </ion-label>
+        <ion-toggle [(ngModel)]="isActive" color="primary" slot="end"></ion-toggle>
+      </ion-item>
+    </div>
+
+    <!-- ── Save Button ─────────────────────────────────────────────────── -->
+    <ion-button expand="block" class="save-btn" (click)="save()" [disabled]="saving">
+      <ion-spinner *ngIf="saving" name="crescent" color="light"></ion-spinner>
+      <ng-container *ngIf="!saving">
+        <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+        {{ isEditMode ? 'Update Item' : 'Add to Catalog' }}
+      </ng-container>
+    </ion-button>
+
+    <div style="height: 40px;"></div>
+  </div>
+</ion-content>
