@@ -1,8 +1,169 @@
-<ion-header>
+<!-- ════════════════════════════════════════
+     HEADER
+════════════════════════════════════════ -->
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
-    <ion-title>Shop Detail</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/customer" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end" *ngIf="shop">
+      <ion-button fill="clear" color="light" (click)="callShop()">
+        <ion-icon name="call-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Shop Detail page — coming soon</p>
+
+<!-- ════════════════════════════════════════
+     CONTENT
+════════════════════════════════════════ -->
+<ion-content>
+
+  <!-- Loading -->
+  <div class="center-state" *ngIf="loading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading shop details…</p>
+  </div>
+
+  <ng-container *ngIf="!loading && shop">
+
+    <!-- ── Shop Cover ───────────────────────── -->
+    <div class="shop-hero">
+      <img *ngIf="shop.imageUrl" [src]="shop.imageUrl" [alt]="shop.name" class="hero-img" />
+      <div *ngIf="!shop.imageUrl" class="hero-initials">
+        {{ getInitials(shop.name) }}
+      </div>
+
+      <!-- Floating info card -->
+      <div class="hero-info-card">
+        <h1 class="shop-name">{{ shop.name }}</h1>
+
+        <!-- Stars -->
+        <div class="rating-row" *ngIf="shop.rating">
+          <ion-icon
+            *ngFor="let filled of getStarArray(shop.rating)"
+            [name]="filled ? 'star' : 'star-outline'"
+            color="warning"
+            class="star-icon">
+          </ion-icon>
+          <span class="rating-val">{{ shop.rating | number:'1.1-1' }}</span>
+          <span class="rating-count">({{ shop.reviewCount || 0 }} reviews)</span>
+        </div>
+
+        <!-- Tags -->
+        <div class="tags-row">
+          <ion-chip *ngFor="let tag of shop.tags" class="type-chip">
+            <ion-label>{{ tag }}</ion-label>
+          </ion-chip>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Info Section ────────────────────── -->
+    <div class="info-section">
+
+      <!-- Address -->
+      <div class="info-row">
+        <div class="info-icon-wrap">
+          <ion-icon name="location-outline" color="primary"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="info-label">Address</span>
+          <span class="info-value">{{ shop.address }}, {{ shop.city }}, {{ shop.state }} – {{ shop.pincode }}</span>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="info-row" (click)="callShop()" style="cursor:pointer">
+        <div class="info-icon-wrap">
+          <ion-icon name="call-outline" color="primary"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="info-label">Phone</span>
+          <span class="info-value primary-text">{{ shop.phone }}</span>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-number">{{ shop.totalOrders || 0 }}</span>
+          <span class="stat-label">Orders</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">{{ shop.reviewCount || 0 }}</span>
+          <span class="stat-label">Reviews</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">₹{{ shop.minPrice | number }}</span>
+          <span class="stat-label">Starting</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Products Section ────────────────── -->
+    <div class="products-section">
+      <div class="section-header">
+        <h2>Our Products</h2>
+        <p>Tap a product to place a custom order</p>
+      </div>
+
+      <!-- No products -->
+      <div class="no-products" *ngIf="products.length === 0">
+        <ion-icon name="storefront-outline"></ion-icon>
+        <p>Product catalog coming soon</p>
+      </div>
+
+      <!-- Product Cards -->
+      <ion-card
+        *ngFor="let product of products"
+        class="product-card"
+        (click)="orderNow(product.type)">
+
+        <ion-card-content class="product-body">
+
+          <div class="product-header">
+            <div class="product-icon-wrap">
+              <ion-icon [name]="product.icon"></ion-icon>
+            </div>
+            <div class="product-title">
+              <h3>{{ product.label }}</h3>
+            </div>
+          </div>
+
+          <p class="product-desc">{{ product.description }}</p>
+
+          <!-- Highlights -->
+          <div class="highlights">
+            <div class="highlight" *ngFor="let h of product.highlights">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <span>{{ h }}</span>
+            </div>
+          </div>
+
+          <ion-button expand="block" class="order-btn">
+            <ion-icon name="cart-outline" slot="start"></ion-icon>
+            Order {{ product.label }}
+          </ion-button>
+
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- Bottom spacer -->
+    <div style="height: 60px;"></div>
+
+  </ng-container>
+
+  <!-- Not found -->
+  <div class="center-state" *ngIf="!loading && !shop">
+    <ion-icon name="storefront-outline" class="empty-icon"></ion-icon>
+    <h3>Shop not found</h3>
+    <ion-button fill="outline" (click)="goBack()">Go Back</ion-button>
+  </div>
+
 </ion-content>
