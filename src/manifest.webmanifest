@@ -1,0 +1,18 @@
+{
+  "name": "CottonCart",
+  "short_name": "CottonCart",
+  "description": "Hyperlocal marketplace for custom cotton mattresses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2e7d32",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/icon/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

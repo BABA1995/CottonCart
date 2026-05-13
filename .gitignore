@@ -10,8 +10,8 @@ www/
 android/
 ios/
 
-# Environment secrets (IMPORTANT - never commit production keys)
-src/environments/environment.prod.ts
+# Environment secrets — Firebase web keys are public (client-side safe)
+# src/environments/environment.prod.ts
 
 # IDE
 .vscode/
