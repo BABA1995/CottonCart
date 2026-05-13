@@ -1,8 +1,186 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
-    <ion-title>Dashboard</ion-title>
+    <ion-title>
+      <span *ngIf="myShop">{{ myShop.name }}</span>
+      <span *ngIf="!myShop && !loadingShop">Shop Dashboard</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Dashboard page — coming soon</p>
+
+<ion-content>
+
+  <!-- Loading -->
+  <div class="center-state" *ngIf="loadingShop">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading your shop…</p>
+  </div>
+
+  <!-- ══ SHOP NOT SET UP ══════════════════════════════════════════ -->
+  <div class="setup-wrapper" *ngIf="!loadingShop && !myShop">
+
+    <div class="setup-hero">
+      <ion-icon name="storefront-outline"></ion-icon>
+      <h2>Set Up Your Shop</h2>
+      <p>Complete your shop profile to start receiving mattress orders from customers nearby.</p>
+    </div>
+
+    <!-- Setup Form -->
+    <div class="form-section">
+      <div class="section-label">Shop Details</div>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Shop Name *</ion-label>
+        <ion-input [(ngModel)]="form.name" placeholder="e.g. Rahul Mattress House"></ion-input>
+      </ion-item>
+      <ion-item class="field-item">
+        <ion-label position="floating">Phone Number *</ion-label>
+        <ion-input type="tel" [(ngModel)]="form.phone" placeholder="10-digit number" maxlength="10"></ion-input>
+      </ion-item>
+      <ion-item class="field-item">
+        <ion-label position="floating">Address *</ion-label>
+        <ion-input [(ngModel)]="form.address" placeholder="Street / Area"></ion-input>
+      </ion-item>
+      <ion-item class="field-item">
+        <ion-label position="floating">City *</ion-label>
+        <ion-input [(ngModel)]="form.city" placeholder="City"></ion-input>
+      </ion-item>
+      <ion-item class="field-item">
+        <ion-label position="floating">State *</ion-label>
+        <ion-input [(ngModel)]="form.state" placeholder="State"></ion-input>
+      </ion-item>
+      <ion-item class="field-item">
+        <ion-label position="floating">Pincode *</ion-label>
+        <ion-input type="tel" [(ngModel)]="form.pincode" placeholder="6-digit" maxlength="6"></ion-input>
+      </ion-item>
+    </div>
+
+    <!-- Price Range -->
+    <div class="form-section">
+      <div class="section-label">Price Range (₹)</div>
+      <div class="price-row">
+        <ion-item class="field-item half">
+          <ion-label position="floating">Min Price</ion-label>
+          <ion-input type="number" [(ngModel)]="form.minPrice" placeholder="3500"></ion-input>
+        </ion-item>
+        <ion-item class="field-item half">
+          <ion-label position="floating">Max Price</ion-label>
+          <ion-input type="number" [(ngModel)]="form.maxPrice" placeholder="15000"></ion-input>
+        </ion-item>
+      </div>
+    </div>
+
+    <!-- Mattress Types -->
+    <div class="form-section">
+      <div class="section-label">Mattress Types You Sell *</div>
+      <div class="tag-grid">
+        <button
+          *ngFor="let t of tagOptions"
+          class="tag-toggle"
+          [class.active]="isTagSelected(t.key)"
+          (click)="toggleTag(t.key)">
+          <ion-icon [name]="t.icon"></ion-icon>
+          {{ t.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-section">
+      <div class="section-label">Shop Location (for map)</div>
+      <ion-button expand="block" fill="outline" (click)="getLocation()" class="loc-btn">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        {{ form.lat ? 'Location: ' + (form.lat | number:'1.4-4') + ', ' + (form.lng | number:'1.4-4') : 'Detect My Location' }}
+      </ion-button>
+    </div>
+
+    <!-- Submit -->
+    <ion-button expand="block" class="submit-btn" (click)="submitSetup()" [disabled]="settingUp">
+      <ion-spinner *ngIf="settingUp" name="crescent" color="light"></ion-spinner>
+      <ng-container *ngIf="!settingUp">
+        <ion-icon name="storefront-outline" slot="start"></ion-icon>
+        Create My Shop
+      </ng-container>
+    </ion-button>
+
+  </div>
+
+  <!-- ══ DASHBOARD ════════════════════════════════════════════════ -->
+  <div class="dashboard-wrapper" *ngIf="!loadingShop && myShop">
+
+    <!-- Greeting -->
+    <div class="greeting">
+      <h2>Welcome, {{ ownerName }} 👋</h2>
+      <p>{{ myShop.city }} · {{ myShop.phone }}</p>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <ion-icon name="receipt-outline" color="primary"></ion-icon>
+        <span class="stat-num">{{ totalOrders }}</span>
+        <span class="stat-lbl">Total</span>
+      </div>
+      <div class="stat-card">
+        <ion-icon name="time-outline" color="warning"></ion-icon>
+        <span class="stat-num">{{ pendingOrders }}</span>
+        <span class="stat-lbl">Pending</span>
+      </div>
+      <div class="stat-card">
+        <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+        <span class="stat-num">{{ deliveredOrders }}</span>
+        <span class="stat-lbl">Delivered</span>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions-section">
+      <div class="section-title">Quick Actions</div>
+      <div class="action-grid">
+        <button class="action-btn" (click)="goToOrders()">
+          <ion-icon name="list-outline"></ion-icon>
+          <span>All Orders</span>
+        </button>
+        <button class="action-btn" (click)="goToProfile()">
+          <ion-icon name="storefront-outline"></ion-icon>
+          <span>Edit Shop</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="recent-section">
+      <div class="section-title">Recent Orders</div>
+
+      <div class="center-state" *ngIf="recentOrders.length === 0">
+        <ion-icon name="cube-outline" class="empty-icon"></ion-icon>
+        <p>No orders yet — share your shop to get started!</p>
+      </div>
+
+      <ion-card *ngFor="let order of recentOrders" class="order-card" (click)="goToOrders()">
+        <ion-card-content>
+          <div class="order-row">
+            <div class="order-left">
+              <span class="order-id">#{{ order.id!.slice(-6).toUpperCase() }}</span>
+              <span class="order-info">{{ order.mattressType }} · {{ order.size }} · {{ order.customerName }}</span>
+            </div>
+            <span class="status-pill" [attr.data-status]="order.status">
+              {{ statusLabels[order.status] }}
+            </span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-button *ngIf="recentOrders.length > 0" expand="block" fill="outline" (click)="goToOrders()" class="view-all-btn">
+        View All Orders
+      </ion-button>
+    </div>
+
+  </div>
+
+  <div style="height: 60px;"></div>
 </ion-content>

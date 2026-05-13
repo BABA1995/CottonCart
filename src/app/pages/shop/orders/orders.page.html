@@ -1,8 +1,127 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
-    <ion-title>Orders</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/shop/dashboard" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Incoming Orders</ion-title>
+  </ion-toolbar>
+
+  <!-- Filter Chips -->
+  <ion-toolbar color="primary" class="filter-toolbar">
+    <div class="filter-scroll">
+      <ion-chip
+        *ngFor="let f of filters"
+        [class.chip-active]="activeFilter === f.key"
+        (click)="setFilter(f.key)">
+        <ion-label>{{ f.label }} ({{ countFor(f.key) }})</ion-label>
+      </ion-chip>
+    </div>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Orders page — coming soon</p>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div class="center-state" *ngIf="loading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading orders…</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="center-state" *ngIf="!loading && filteredOrders.length === 0">
+    <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
+    <h3>No orders here</h3>
+    <p *ngIf="activeFilter !== 'all'">No {{ activeFilter }} orders right now</p>
+    <p *ngIf="activeFilter === 'all'">Customers haven't placed orders yet</p>
+  </div>
+
+  <!-- Orders -->
+  <div class="orders-list" *ngIf="!loading && filteredOrders.length > 0">
+
+    <ion-card *ngFor="let order of filteredOrders" class="order-card">
+      <ion-card-content>
+
+        <!-- ── Top Row ──────────────────────────── -->
+        <div class="top-row" (click)="toggleExpand(order.id!)">
+          <div class="order-meta">
+            <span class="order-id">#{{ order.id!.slice(-6).toUpperCase() }}</span>
+            <span class="order-date">{{ (order.createdAt | date:'d MMM, h:mm a') || '—' }}</span>
+          </div>
+          <span class="status-pill" [attr.data-status]="order.status">
+            {{ statusLabels[order.status] }}
+          </span>
+        </div>
+
+        <!-- ── Customer & Mattress ─────────────── -->
+        <div class="summary-rows">
+          <div class="s-row">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>{{ order.customerName }} · {{ order.customerPhone }}</span>
+          </div>
+          <div class="s-row">
+            <ion-icon name="bed-outline"></ion-icon>
+            <span>{{ order.mattressType | titlecase }} · {{ formatSize(order) }} · {{ order.fabricType }}</span>
+          </div>
+          <div class="s-row">
+            <ion-icon name="cube-outline"></ion-icon>
+            <span>
+              Cotton: {{ order.cottonType === 'pure' ? 'Pure White' : 'Mixed White' }} · {{ order.cottonWeightKg }} kg
+              · Qty: {{ order.quantity }}
+            </span>
+          </div>
+        </div>
+
+        <!-- ── Expanded Details ────────────────── -->
+        <div class="expanded" *ngIf="expandedId === order.id">
+          <div class="divider"></div>
+          <div class="s-row">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ order.deliveryAddress }}, {{ order.deliveryCity }} – {{ order.deliveryPincode }}</span>
+          </div>
+          <div class="s-row" *ngIf="order.notes">
+            <ion-icon name="receipt-outline"></ion-icon>
+            <span><em>{{ order.notes }}</em></span>
+          </div>
+        </div>
+
+        <button class="expand-btn" (click)="toggleExpand(order.id!)">
+          {{ expandedId === order.id ? '▲ Hide' : '▼ Details' }}
+        </button>
+
+        <!-- ── Action Buttons ─────────────────── -->
+        <div class="action-row" *ngIf="order.status !== 'delivered' && order.status !== 'cancelled'">
+
+          <!-- Advance status -->
+          <ion-button
+            *ngIf="nextStatus(order.status)"
+            class="advance-btn"
+            [disabled]="updatingId === order.id"
+            (click)="advanceStatus(order)">
+            <ion-spinner *ngIf="updatingId === order.id" name="crescent" color="light" style="width:18px;height:18px"></ion-spinner>
+            <ng-container *ngIf="updatingId !== order.id">
+              <ion-icon name="arrow-forward-outline" slot="start"></ion-icon>
+              {{ nextLabel(order.status) }}
+            </ng-container>
+          </ion-button>
+
+          <!-- Cancel -->
+          <ion-button
+            fill="outline"
+            color="danger"
+            class="cancel-btn"
+            [disabled]="updatingId === order.id"
+            (click)="cancelOrder(order)">
+            Cancel
+          </ion-button>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <div style="height: 60px;"></div>
 </ion-content>

@@ -5,8 +5,10 @@ import {
   collectionData,
   doc,
   docData,
+  setDoc,
   query,
-  where
+  where,
+  serverTimestamp
 } from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 import { ShopModel } from '../models/shop.model';
@@ -45,6 +47,26 @@ export class ShopService {
   getShopById(id: string): Observable<ShopModel> {
     const ref = doc(this.firestore, 'shops', id);
     return docData(ref, { idField: 'id' }) as Observable<ShopModel>;
+  }
+
+  /** Shop owner: get their own shop (doc ID === owner uid) */
+  getMyShop(uid: string): Observable<ShopModel | null> {
+    const ref = doc(this.firestore, 'shops', uid);
+    return docData(ref, { idField: 'id' }) as Observable<ShopModel | null>;
+  }
+
+  /** Shop owner: create or update their shop document */
+  async setupShop(uid: string, data: Partial<ShopModel>): Promise<void> {
+    const ref = doc(this.firestore, 'shops', uid);
+    await setDoc(ref, {
+      ...data,
+      uid,
+      isActive:     true,
+      totalOrders:  0,
+      reviewCount:  0,
+      rating:       0,
+      createdAt:    serverTimestamp()
+    }, { merge: true });
   }
 
   /**
