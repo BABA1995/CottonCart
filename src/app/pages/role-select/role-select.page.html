@@ -12,28 +12,32 @@
     <div class="role-cards">
 
       <!-- Customer Card -->
-      <div class="role-card" (click)="selectRole('customer')">
-        <div class="card-icon-wrapper customer">
-          <ion-icon name="person-outline"></ion-icon>
-        </div>
-        <div class="card-content">
-          <h2>I'm a Customer</h2>
-          <p>Browse nearby shops & order custom mattresses</p>
-        </div>
-        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
-      </div>
+      <ion-card class="role-card" (click)="selectRole('customer')">
+        <ion-card-content class="card-inner">
+          <div class="card-icon-wrapper customer">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h2>I'm a Customer</h2>
+            <p>Browse nearby shops & order custom mattresses</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+        </ion-card-content>
+      </ion-card>
 
       <!-- Shop Owner Card -->
-      <div class="role-card" (click)="selectRole('shop')">
-        <div class="card-icon-wrapper shop">
-          <ion-icon name="storefront-outline"></ion-icon>
-        </div>
-        <div class="card-content">
-          <h2>I'm a Shop Owner</h2>
-          <p>Manage your shop, catalog & receive orders</p>
-        </div>
-        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
-      </div>
+      <ion-card class="role-card" (click)="selectRole('shop')">
+        <ion-card-content class="card-inner">
+          <div class="card-icon-wrapper shop">
+            <ion-icon name="storefront-outline"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h2>I'm a Shop Owner</h2>
+            <p>Manage your shop, catalog & receive orders</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+        </ion-card-content>
+      </ion-card>
 
     </div>
 

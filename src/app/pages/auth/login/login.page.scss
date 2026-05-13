@@ -1,0 +1,131 @@
+.login-content {
+  --background: #FAFAFA;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 48px 24px 32px;
+}
+
+/* ── Header ── */
+.login-header {
+  text-align: center;
+  margin-bottom: 36px;
+
+  .logo-icon {
+    font-size: 52px;
+    color: var(--ion-color-primary);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #212121;
+    margin: 8px 0 8px;
+  }
+
+  .role-badge {
+    display: inline-block;
+    font-size: 13px;
+    color: #555;
+    background: #E8F5E9;
+    border-radius: 20px;
+    padding: 4px 16px;
+    margin: 0;
+  }
+}
+
+/* ── Form ── */
+.login-form {
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #212121;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #757575;
+    margin: 0 0 24px;
+  }
+}
+
+.form-item {
+  --background: #ffffff;
+  --border-radius: 10px;
+  --inner-padding-end: 8px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Forgot password link */
+.forgot-row {
+  text-align: right;
+  margin: 2px 0 20px;
+
+  span {
+    color: var(--ion-color-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+/* Login button */
+.btn-login {
+  --background: var(--ion-color-primary);
+  --border-radius: 10px;
+  --box-shadow: 0 4px 12px rgba(46,125,50,0.3);
+  height: 50px;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+/* OR divider */
+.divider {
+  text-align: center;
+  margin: 4px 0 12px;
+  color: #BDBDBD;
+  font-size: 13px;
+  position: relative;
+
+  &::before, &::after {
+    content: '';
+    display: inline-block;
+    width: 38%;
+    height: 1px;
+    background: #E0E0E0;
+    vertical-align: middle;
+    margin: 0 8px;
+  }
+}
+
+/* Sign up button */
+.btn-signup {
+  --border-radius: 10px;
+  --color: var(--ion-color-primary);
+  --border-color: var(--ion-color-primary);
+  height: 50px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* Back row */
+.back-row {
+  text-align: center;
+  margin-top: 24px;
+
+  span {
+    color: #9E9E9E;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+}

@@ -31,7 +31,20 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "@ionic/angular/css/core.css",
+              "@ionic/angular/css/normalize.css",
+              "@ionic/angular/css/structure.css",
+              "@ionic/angular/css/typography.css",
+              "@ionic/angular/css/display.css",
+              "@ionic/angular/css/padding.css",
+              "@ionic/angular/css/float-elements.css",
+              "@ionic/angular/css/text-alignment.css",
+              "@ionic/angular/css/text-transformation.css",
+              "@ionic/angular/css/flex-utils.css",
+              "src/theme/variables.scss",
+              "src/global.scss"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -111,7 +124,20 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "@ionic/angular/css/core.css",
+              "@ionic/angular/css/normalize.css",
+              "@ionic/angular/css/structure.css",
+              "@ionic/angular/css/typography.css",
+              "@ionic/angular/css/display.css",
+              "@ionic/angular/css/padding.css",
+              "@ionic/angular/css/float-elements.css",
+              "@ionic/angular/css/text-alignment.css",
+              "@ionic/angular/css/text-transformation.css",
+              "@ionic/angular/css/flex-utils.css",
+              "src/theme/variables.scss",
+              "src/global.scss"
+            ],
             "scripts": []
           },
           "configurations": {

@@ -1,8 +1,79 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
-    <ion-title>Login</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" fill="clear" color="light">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Sign In</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Login page — coming soon</p>
+
+<ion-content class="login-content">
+  <div class="login-container">
+
+    <!-- Logo -->
+    <div class="login-header">
+      <ion-icon name="bed-outline" class="logo-icon"></ion-icon>
+      <h1>CottonCart</h1>
+      <p class="role-badge">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</p>
+    </div>
+
+    <!-- Form -->
+    <div class="login-form">
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Sign in to continue</p>
+
+      <!-- Email -->
+      <ion-item class="form-item">
+        <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          type="email"
+          label="Email Address"
+          labelPlacement="floating"
+          placeholder="you@example.com"
+          [(ngModel)]="email"
+          autocomplete="email">
+        </ion-input>
+      </ion-item>
+
+      <!-- Password -->
+      <ion-item class="form-item">
+        <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          label="Password"
+          labelPlacement="floating"
+          placeholder="Enter your password"
+          [(ngModel)]="password">
+        </ion-input>
+        <ion-icon
+          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+          slot="end" color="medium"
+          (click)="togglePassword()"
+          style="cursor:pointer">
+        </ion-icon>
+      </ion-item>
+
+      <!-- Forgot Password -->
+      <div class="forgot-row">
+        <span (click)="forgotPassword()">Forgot Password?</span>
+      </div>
+
+      <!-- Login Button -->
+      <ion-button expand="block" class="btn-login" (click)="login()" [disabled]="loading">
+        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+        <span *ngIf="!loading">Login</span>
+      </ion-button>
+
+      <!-- Divider -->
+      <div class="divider"><span>OR</span></div>
+
+      <!-- Signup Link -->
+      <ion-button expand="block" fill="outline" class="btn-signup" (click)="goToSignup()">
+        Create New Account
+      </ion-button>
+    </div>
+
+  </div>
 </ion-content>

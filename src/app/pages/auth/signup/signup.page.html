@@ -1,8 +1,108 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Signup</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-content class="ion-padding">
-  <p>Signup page — coming soon</p>
+<ion-content class="signup-content">
+  <div class="signup-container">
+
+    <!-- Header -->
+    <div class="signup-header">
+      <ion-icon name="bed-outline" class="logo-icon"></ion-icon>
+      <h1>CottonCart</h1>
+      <p class="role-badge">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</p>
+    </div>
+
+    <!-- Form -->
+    <div class="signup-form">
+      <h2>Create Account</h2>
+      <p class="subtitle">Join CottonCart today</p>
+
+      <!-- Full Name -->
+      <ion-item class="form-item">
+        <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          type="text"
+          label="Full Name"
+          labelPlacement="floating"
+          placeholder="Your full name"
+          [(ngModel)]="name">
+        </ion-input>
+      </ion-item>
+
+      <!-- Phone -->
+      <ion-item class="form-item">
+        <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          type="tel"
+          label="Phone Number"
+          labelPlacement="floating"
+          placeholder="10-digit mobile number"
+          [(ngModel)]="phone"
+          maxlength="10">
+        </ion-input>
+      </ion-item>
+
+      <!-- Email -->
+      <ion-item class="form-item">
+        <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          type="email"
+          label="Email Address"
+          labelPlacement="floating"
+          placeholder="you@example.com"
+          [(ngModel)]="email"
+          autocomplete="email">
+        </ion-input>
+      </ion-item>
+
+      <!-- Password -->
+      <ion-item class="form-item">
+        <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          label="Password"
+          labelPlacement="floating"
+          placeholder="Min. 6 characters"
+          [(ngModel)]="password">
+        </ion-input>
+        <ion-icon
+          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+          slot="end"
+          color="medium"
+          (click)="togglePassword()"
+          style="cursor:pointer">
+        </ion-icon>
+      </ion-item>
+
+      <!-- Confirm Password -->
+      <ion-item class="form-item">
+        <ion-icon name="shield-checkmark-outline" slot="start" color="medium"></ion-icon>
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          label="Confirm Password"
+          labelPlacement="floating"
+          placeholder="Re-enter password"
+          [(ngModel)]="confirmPassword">
+        </ion-input>
+      </ion-item>
+
+      <!-- Sign Up Button -->
+      <ion-button expand="block" class="btn-signup" (click)="signup()" [disabled]="loading">
+        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+        <span *ngIf="!loading">Create Account</span>
+      </ion-button>
+
+      <!-- Divider -->
+      <div class="divider"><span>OR</span></div>
+
+      <!-- Already have account -->
+      <ion-button expand="block" fill="outline" class="btn-login" (click)="goToLogin()">
+        Already have an account? Login
+      </ion-button>
+    </div>
+
+    <!-- Back row -->
+    <div class="back-row">
+      <span (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon> Change Role
+      </span>
+    </div>
+
+  </div>
 </ion-content>
