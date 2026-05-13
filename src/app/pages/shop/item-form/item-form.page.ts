@@ -10,8 +10,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  cameraOutline, closeCircle, addOutline, checkmarkOutline,
-  imageOutline, trashOutline, cloudUploadOutline
+  addOutline, checkmarkOutline, imageOutline, trashOutline, linkOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
 import { ItemService } from '../../../services/item.service';
@@ -34,39 +33,34 @@ import {
 export class ItemFormPage implements OnInit {
 
   // ── Mode ──────────────────────────────────────────────────────────────────
-  isEditMode  = false;
-  editItemId  = '';
-  shopId      = '';
-  saving      = false;
+  isEditMode = false;
+  editItemId = '';
+  shopId     = '';
+  saving     = false;
 
-  // ── Image state ───────────────────────────────────────────────────────────
-  /** URLs of already-uploaded images (from Firestore doc) */
-  savedImages: string[] = [];
-  /** Files selected by user but not yet uploaded */
-  pendingFiles: File[] = [];
-  /** Object-URL previews for pendingFiles */
-  pendingPreviews: string[] = [];
-  uploadProgress = 0;
-  uploading      = false;
+  // ── Photo URLs (up to 3 — paste from Google Photos / imgbb / WhatsApp Web)
+  imageUrl1 = '';
+  imageUrl2 = '';
+  imageUrl3 = '';
 
   // ── Form fields ───────────────────────────────────────────────────────────
-  name         = '';
-  category     = '';
-  description  = '';
-  price: any   = '';
-  mrp: any     = '';
-  sizeLabel    = '';
-  fabricType   = '';
-  fabricGsm: any    = '';
-  threadCount: any  = '';
-  fabricMeters: any = '';
-  hasFilling   = false;
-  cottonType   = '';
-  fillWeight: any = '';
+  name             = '';
+  category         = '';
+  description      = '';
+  price: any       = '';
+  mrp: any         = '';
+  sizeLabel        = '';
+  fabricType       = '';
+  fabricGsm: any   = '';
+  threadCount: any = '';
+  fabricMeters: any= '';
+  hasFilling       = false;
+  cottonType       = '';
+  fillWeight: any  = '';
   color            = '';
   careInstructions = '';
   stockCount: any  = 1;
-  isActive     = true;
+  isActive         = true;
 
   // ── Constants ─────────────────────────────────────────────────────────────
   readonly categories  = ITEM_CATEGORIES;
@@ -78,6 +72,13 @@ export class ItemFormPage implements OnInit {
     return this.categoryMap[this.category]?.hasFilling ?? this.hasFilling;
   }
 
+  /** Collect non-empty URLs into array for storage */
+  get imageUrls(): string[] {
+    return [this.imageUrl1, this.imageUrl2, this.imageUrl3]
+      .map(u => u.trim())
+      .filter(u => u.length > 0);
+  }
+
   constructor(
     private authService: AuthService,
     private itemService: ItemService,
@@ -85,10 +86,7 @@ export class ItemFormPage implements OnInit {
     private navCtrl:     NavController,
     private toastCtrl:   ToastController
   ) {
-    addIcons({
-      cameraOutline, closeCircle, addOutline, checkmarkOutline,
-      imageOutline, trashOutline, cloudUploadOutline
-    });
+    addIcons({ addOutline, checkmarkOutline, imageOutline, trashOutline, linkOutline });
   }
 
   ngOnInit() {
@@ -108,7 +106,11 @@ export class ItemFormPage implements OnInit {
     const item = await this.itemService.getItemById(this.shopId, id);
     if (!item) return;
 
-    this.savedImages     = [...(item.images ?? [])];
+    const imgs        = item.images ?? [];
+    this.imageUrl1    = imgs[0] ?? '';
+    this.imageUrl2    = imgs[1] ?? '';
+    this.imageUrl3    = imgs[2] ?? '';
+
     this.name            = item.name;
     this.category        = item.category;
     this.description     = item.description;
@@ -128,79 +130,24 @@ export class ItemFormPage implements OnInit {
     this.isActive        = item.isActive;
   }
 
-  // ── Image picking ─────────────────────────────────────────────────────────
-
-  triggerFilePicker() {
-    const input = document.createElement('input');
-    input.type  = 'file';
-    input.accept= 'image/*';
-    input.multiple = true;
-    input.onchange = (e: any) => this.onFilesSelected(e.target.files);
-    input.click();
-  }
-
-  onFilesSelected(fileList: FileList | null) {
-    if (!fileList) return;
-    const remaining = 3 - this.savedImages.length - this.pendingFiles.length;
-    const toAdd     = Math.min(fileList.length, remaining);
-    for (let i = 0; i < toAdd; i++) {
-      const file = fileList[i];
-      this.pendingFiles.push(file);
-      this.pendingPreviews.push(URL.createObjectURL(file));
-    }
-    if (fileList.length > remaining) {
-      this.showToast('Max 3 photos allowed', 'warning');
-    }
-  }
-
-  removeSaved(index: number) {
-    this.savedImages.splice(index, 1);
-  }
-
-  removePending(index: number) {
-    URL.revokeObjectURL(this.pendingPreviews[index]);
-    this.pendingFiles.splice(index, 1);
-    this.pendingPreviews.splice(index, 1);
-  }
-
-  get totalImages() { return this.savedImages.length + this.pendingFiles.length; }
-
   // ── Save ──────────────────────────────────────────────────────────────────
 
   async save() {
-    // Validation
-    if (!this.name.trim())      return this.showToast('Enter item name', 'warning');
-    if (!this.category)         return this.showToast('Select a category', 'warning');
+    if (!this.name.trim())       return this.showToast('Enter item name', 'warning');
+    if (!this.category)          return this.showToast('Select a category', 'warning');
     if (!this.description.trim())return this.showToast('Enter a description', 'warning');
-    if (!+this.price)           return this.showToast('Enter selling price', 'warning');
-    if (!this.sizeLabel.trim()) return this.showToast('Enter size / dimensions', 'warning');
-    if (!this.fabricType)       return this.showToast('Select fabric type', 'warning');
+    if (!+this.price)            return this.showToast('Enter selling price', 'warning');
+    if (!this.sizeLabel.trim())  return this.showToast('Enter size / dimensions', 'warning');
+    if (!this.fabricType)        return this.showToast('Select fabric type', 'warning');
     if (this.showFilling && !this.cottonType) return this.showToast('Select fill type', 'warning');
 
     this.saving = true;
     try {
-      // 1. Determine item ID (new or existing)
-      const itemId = this.isEditMode
-        ? this.editItemId
-        : doc_id(); // temp placeholder — replaced below for new items
-
-      // 2. Upload pending images → get URLs
-      let newUrls: string[] = [];
-      if (this.pendingFiles.length > 0) {
-        this.uploading = true;
-        const uploadId = this.isEditMode ? itemId : 'tmp_' + Date.now();
-        newUrls = await this.uploadPending(uploadId);
-        this.uploading = false;
-      }
-
-      const allImages = [...this.savedImages, ...newUrls];
-
-      // 3. Build item payload (no undefined fields)
       const payload: any = {
         name:        this.name.trim(),
         category:    this.category,
         description: this.description.trim(),
-        images:      allImages,
+        images:      this.imageUrls,
         price:       +this.price,
         sizeLabel:   this.sizeLabel.trim(),
         fabricType:  this.fabricType,
@@ -210,19 +157,19 @@ export class ItemFormPage implements OnInit {
         tags:        [],
       };
 
-      if (+this.mrp)          payload.mrp             = +this.mrp;
-      if (+this.fabricGsm)    payload.fabricGsm       = +this.fabricGsm;
-      if (+this.threadCount)  payload.threadCount     = +this.threadCount;
-      if (+this.fabricMeters) payload.fabricMetersUsed= +this.fabricMeters;
-      if (this.color.trim())  payload.color           = this.color.trim();
-      if (this.careInstructions.trim()) payload.careInstructions = this.careInstructions.trim();
+      if (+this.mrp)          payload.mrp              = +this.mrp;
+      if (+this.fabricGsm)    payload.fabricGsm        = +this.fabricGsm;
+      if (+this.threadCount)  payload.threadCount      = +this.threadCount;
+      if (+this.fabricMeters) payload.fabricMetersUsed = +this.fabricMeters;
+      if (this.color.trim())  payload.color            = this.color.trim();
+      if (this.careInstructions.trim())
+        payload.careInstructions = this.careInstructions.trim();
 
       if (this.showFilling) {
-        payload.cottonType  = this.cottonType;
+        payload.cottonType = this.cottonType;
         if (+this.fillWeight) payload.fillWeightKg = +this.fillWeight;
       }
 
-      // 4. Write to Firestore
       if (this.isEditMode) {
         await this.itemService.updateItem(this.shopId, this.editItemId, payload);
         this.showToast('Item updated ✅', 'success');
@@ -237,22 +184,7 @@ export class ItemFormPage implements OnInit {
       this.showToast('Save failed. Try again.', 'danger');
     } finally {
       this.saving = false;
-      this.uploading = false;
     }
-  }
-
-  private async uploadPending(itemId: string): Promise<string[]> {
-    const urls: string[] = [];
-    const base = this.savedImages.length;
-    for (let i = 0; i < this.pendingFiles.length; i++) {
-      this.uploadProgress = 0;
-      const url = await this.itemService.uploadImage(
-        this.shopId, itemId, this.pendingFiles[i], base + i,
-        pct => { this.uploadProgress = pct; }
-      );
-      urls.push(url);
-    }
-    return urls;
   }
 
   async showToast(message: string, color = 'danger') {
@@ -260,6 +192,3 @@ export class ItemFormPage implements OnInit {
     t.present();
   }
 }
-
-/** tiny helper — only used as a placeholder, replaced by Firestore's addDoc ID */
-function doc_id() { return 'new_' + Date.now(); }
