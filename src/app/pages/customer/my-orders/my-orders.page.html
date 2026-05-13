@@ -1,8 +1,142 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/customer" color="light"></ion-back-button>
+    </ion-buttons>
     <ion-title>My Orders</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>My Orders page — coming soon</p>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div class="center-state" *ngIf="loading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading your orders…</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="center-state" *ngIf="!loading && orders.length === 0">
+    <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
+    <h3>No orders yet</h3>
+    <p>Your mattress orders will appear here</p>
+    <ion-button (click)="goToHome()" class="ion-margin-top">
+      Browse Shops
+    </ion-button>
+  </div>
+
+  <!-- Orders List -->
+  <div class="orders-list" *ngIf="!loading && orders.length > 0">
+
+    <ion-card
+      *ngFor="let order of orders"
+      class="order-card"
+      [class.cancelled]="order.status === 'cancelled'">
+
+      <!-- ── Card Header ─────────────────────── -->
+      <div class="card-header" (click)="toggleExpand(order.id!)">
+
+        <div class="order-meta">
+          <span class="order-id">#{{ order.id!.slice(-6).toUpperCase() }}</span>
+          <span class="order-date">{{ order.createdAt | date:'d MMM y, h:mm a' }}</span>
+        </div>
+
+        <ion-badge [color]="statusColors[order.status]" class="status-badge">
+          <ion-icon [name]="statusIcon(order.status)"></ion-icon>
+          {{ statusLabels[order.status] }}
+        </ion-badge>
+
+      </div>
+
+      <ion-card-content class="card-body">
+
+        <!-- ── Quick Summary ───────────────────── -->
+        <div class="quick-summary">
+          <div class="qs-item">
+            <ion-icon name="bed-outline" color="primary"></ion-icon>
+            <span>{{ order.mattressType | titlecase }} · {{ formatSize(order) }}</span>
+          </div>
+          <div class="qs-item">
+            <ion-icon name="storefront-outline" color="primary"></ion-icon>
+            <span>{{ order.shopName }}</span>
+          </div>
+        </div>
+
+        <!-- ── Status Progress Bar ────────────── -->
+        <div class="progress-section" *ngIf="order.status !== 'cancelled'">
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              [style.width.%]="(statusStep(order.status) / 4) * 100">
+            </div>
+          </div>
+          <div class="progress-labels">
+            <span [class.active]="statusStep(order.status) >= 0">Pending</span>
+            <span [class.active]="statusStep(order.status) >= 1">Confirmed</span>
+            <span [class.active]="statusStep(order.status) >= 2">Making</span>
+            <span [class.active]="statusStep(order.status) >= 3">Ready</span>
+            <span [class.active]="statusStep(order.status) >= 4">Delivered</span>
+          </div>
+        </div>
+
+        <!-- ── Expanded Details ────────────────── -->
+        <div class="expanded-details" *ngIf="expandedId === order.id">
+
+          <div class="detail-divider"></div>
+
+          <div class="detail-grid">
+            <div class="detail-row">
+              <span class="dl">Fabric</span>
+              <span class="dv">{{ order.fabricType }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="dl">Cotton</span>
+              <span class="dv">
+                {{ order.cottonType === 'pure' ? 'Pure White' : 'Mixed White' }}
+                · {{ order.cottonWeightKg }} kg
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="dl">Quantity</span>
+              <span class="dv">{{ order.quantity }}</span>
+            </div>
+            <div class="detail-row" *ngIf="order.notes">
+              <span class="dl">Notes</span>
+              <span class="dv">{{ order.notes }}</span>
+            </div>
+          </div>
+
+          <div class="detail-divider"></div>
+
+          <!-- Delivery -->
+          <div class="delivery-section">
+            <p class="delivery-label">
+              <ion-icon name="location-outline"></ion-icon> Delivery Address
+            </p>
+            <p class="delivery-addr">
+              {{ order.deliveryName }}<br>
+              {{ order.deliveryAddress }}, {{ order.deliveryCity }} – {{ order.deliveryPincode }}
+            </p>
+            <p class="delivery-phone">
+              <ion-icon name="call-outline"></ion-icon> {{ order.deliveryPhone }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Expand / Collapse toggle -->
+        <button class="expand-btn" (click)="toggleExpand(order.id!)">
+          <ion-icon [name]="expandedId === order.id ? 'chevron-up' : 'chevron-forward-outline'"></ion-icon>
+          {{ expandedId === order.id ? 'Hide details' : 'View details' }}
+        </button>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <div style="height: 60px;"></div>
 </ion-content>
