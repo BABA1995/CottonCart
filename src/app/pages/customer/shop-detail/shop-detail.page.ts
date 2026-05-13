@@ -1,64 +1,22 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgIf, NgFor, DecimalPipe, TitleCasePipe } from '@angular/common';
+import { NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonButton, IonIcon, IonSpinner, IonChip, IonLabel,
-  IonCard, IonCardContent, IonBadge,
   NavController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   locationOutline, callOutline, star, starOutline,
-  bedOutline, chevronForwardOutline, arrowBackOutline,
-  checkmarkCircleOutline, timeOutline, storefrontOutline,
-  cartOutline, leafOutline, cogOutline, sparklesOutline
+  bedOutline, storefrontOutline, cartOutline, cubeOutline,
+  logoWhatsapp
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { ShopService } from '../../../services/shop.service';
 import { ItemService } from '../../../services/item.service';
 import { ShopModel } from '../../../models/shop.model';
 import { ShopItem, CATEGORY_MAP } from '../../../models/shop-item.model';
-
-// Each mattress type the shop can offer
-interface ProductCard {
-  type: string;
-  label: string;
-  description: string;
-  icon: string;
-  highlights: string[];
-}
-
-const PRODUCT_INFO: Record<string, ProductCard> = {
-  spring: {
-    type: 'spring',
-    label: 'Spring Mattress',
-    description: 'Classic bonnel or pocket spring mattresses. Great support with natural airflow for a cool sleep.',
-    icon: 'sparkles-outline',
-    highlights: ['Good air circulation', 'Strong edge support', 'Long lasting']
-  },
-  foam: {
-    type: 'foam',
-    label: 'Foam Mattress',
-    description: 'High-density or memory foam mattresses that contour to your body for pressure relief.',
-    icon: 'leaf-outline',
-    highlights: ['Pressure relief', 'Motion isolation', 'Hypoallergenic']
-  },
-  coir: {
-    type: 'coir',
-    label: 'Coir Mattress',
-    description: 'Natural coconut fibre mattresses. Firm, breathable and eco-friendly — a traditional favourite.',
-    icon: 'bed-outline',
-    highlights: ['100% natural', 'Firm support', 'Eco-friendly']
-  },
-  custom: {
-    type: 'custom',
-    label: 'Custom Mattress',
-    description: 'Order a fully custom mattress tailored to your exact size, materials and comfort preferences.',
-    icon: 'cog-outline',
-    highlights: ['Any size', 'Your choice of material', 'Made to order']
-  }
-};
 
 @Component({
   selector: 'app-shop-detail',
@@ -68,18 +26,16 @@ const PRODUCT_INFO: Record<string, ProductCard> = {
   imports: [
     IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonButton, IonIcon, IonSpinner, IonChip, IonLabel,
-    IonCard, IonCardContent, IonBadge,
-    NgIf, NgFor, DecimalPipe, TitleCasePipe
+    NgIf, NgFor, DecimalPipe
   ],
 })
 export class ShopDetailPage implements OnInit, OnDestroy {
 
   shop: ShopModel | null = null;
-  loading                = true;
-  products: ProductCard[] = [];
+  loading               = true;
 
-  shopItems:      ShopItem[] = [];
-  itemsLoading    = true;
+  shopItems:    ShopItem[] = [];
+  itemsLoading  = true;
 
   readonly categoryMap = CATEGORY_MAP;
 
@@ -87,17 +43,16 @@ export class ShopDetailPage implements OnInit, OnDestroy {
   private itemsSub?: Subscription;
 
   constructor(
-    private route: ActivatedRoute,
+    private route:       ActivatedRoute,
     private shopService: ShopService,
     private itemService: ItemService,
-    private navCtrl: NavController,
-    private toastCtrl: ToastController
+    private navCtrl:     NavController,
+    private toastCtrl:   ToastController
   ) {
     addIcons({
       locationOutline, callOutline, star, starOutline,
-      bedOutline, chevronForwardOutline, arrowBackOutline,
-      checkmarkCircleOutline, timeOutline, storefrontOutline,
-      cartOutline, leafOutline, cogOutline, sparklesOutline
+      bedOutline, storefrontOutline, cartOutline, cubeOutline,
+      logoWhatsapp
     });
   }
 
@@ -107,9 +62,8 @@ export class ShopDetailPage implements OnInit, OnDestroy {
 
     this.sub = this.shopService.getShopById(id).subscribe({
       next: shop => {
-        this.shop     = shop;
-        this.products = this.buildProductCards(shop.tags || []);
-        this.loading  = false;
+        this.shop    = shop;
+        this.loading = false;
       },
       error: () => {
         this.loading = false;
@@ -117,7 +71,6 @@ export class ShopDetailPage implements OnInit, OnDestroy {
       }
     });
 
-    // Load active catalog items for this shop
     this.itemsSub = this.itemService.getActiveShopItems(id).subscribe({
       next: items => {
         this.shopItems   = items;
@@ -132,19 +85,16 @@ export class ShopDetailPage implements OnInit, OnDestroy {
     this.itemsSub?.unsubscribe();
   }
 
-  // Build product cards from the shop's tags
-  buildProductCards(tags: string[]): ProductCard[] {
-    return tags
-      .map(t => PRODUCT_INFO[t.toLowerCase()])
-      .filter(Boolean);
+  /** Show stats row only when shop has real data */
+  get hasStats(): boolean {
+    return !!(this.shop &&
+      ((this.shop.totalOrders  ?? 0) > 0 ||
+       (this.shop.reviewCount  ?? 0) > 0 ||
+       (this.shop.minPrice     ?? 0) > 0));
   }
 
-  // Navigate to order form with shop + product type
-  orderNow(productType: string) {
-    this.navCtrl.navigateForward(
-      `/customer/order-form/${this.shop!.id}`,
-      { queryParams: { type: productType } }
-    );
+  placeCustomOrder() {
+    this.navCtrl.navigateForward(`/customer/order-form/${this.shop!.id}`);
   }
 
   goToItemDetail(item: ShopItem) {
@@ -156,11 +106,15 @@ export class ShopDetailPage implements OnInit, OnDestroy {
     return Math.round(((item.mrp - item.price) / item.mrp) * 100);
   }
 
-  // Call the shop
   callShop() {
-    if (this.shop?.phone) {
-      window.open(`tel:${this.shop.phone}`);
-    }
+    if (this.shop?.phone) window.open(`tel:${this.shop.phone}`);
+  }
+
+  whatsAppShop() {
+    if (!this.shop) return;
+    const phone = this.shop.phone.replace(/\D/g, '');
+    const msg   = encodeURIComponent(`Hi, I found your shop *${this.shop.name}* on CottonCart. I'd like to enquire about your products.`);
+    window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
   }
 
   goBack() { this.navCtrl.back(); }

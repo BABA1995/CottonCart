@@ -13,7 +13,7 @@ import {
   timeOutline, bicycleOutline, logOutOutline, listOutline,
   locationOutline, callOutline, pricetagOutline, addCircleOutline,
   personOutline, cubeOutline, bedOutline, sparklesOutline,
-  leafOutline, cogOutline
+  leafOutline, cogOutline, flowerOutline
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
@@ -60,6 +60,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   };
 
   readonly tagOptions = [
+    { key: 'cotton', label: 'Cotton',  icon: 'flower-outline'   },
     { key: 'spring', label: 'Spring',  icon: 'sparkles-outline' },
     { key: 'foam',   label: 'Foam',    icon: 'leaf-outline'     },
     { key: 'coir',   label: 'Coir',    icon: 'bed-outline'      },
@@ -85,7 +86,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       timeOutline, bicycleOutline, logOutOutline, listOutline,
       locationOutline, callOutline, pricetagOutline, addCircleOutline,
       personOutline, cubeOutline, bedOutline, sparklesOutline,
-      leafOutline, cogOutline
+      leafOutline, cogOutline, flowerOutline
     });
   }
 
