@@ -1,8 +1,277 @@
-<ion-header>
+<!-- ═══════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════ -->
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
-    <ion-title>Order Form</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button color="light"></ion-back-button>
+    </ion-buttons>
+    <div class="header-title">
+      <span class="header-shop" *ngIf="!loadingShop">{{ shopName }}</span>
+      <span class="header-sub">{{ pageTitle }}</span>
+    </div>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Order Form page — coming soon</p>
+
+<!-- ═══════════════════════════════════════════
+     CONTENT
+═══════════════════════════════════════════ -->
+<ion-content>
+  <div class="form-wrapper">
+
+    <!-- ── 1. Size ─────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">
+        <ion-icon name="resize-outline"></ion-icon>
+        <span>Mattress Size</span>
+      </div>
+
+      <div class="option-grid">
+        <button
+          *ngFor="let s of sizes"
+          class="option-btn"
+          [class.selected]="selectedSize === s.key"
+          (click)="onSizeSelect(s.key)">
+          <span class="opt-label">{{ s.label }}</span>
+          <span class="opt-sub">{{ s.dims }}</span>
+        </button>
+      </div>
+
+      <!-- Custom dimensions -->
+      <div class="custom-dims" *ngIf="selectedSize === 'Custom'">
+        <ion-item class="dim-item">
+          <ion-label position="floating">Length (inches)</ion-label>
+          <ion-input type="number" [(ngModel)]="customLength" placeholder="e.g. 78"></ion-input>
+        </ion-item>
+        <ion-item class="dim-item">
+          <ion-label position="floating">Width (inches)</ion-label>
+          <ion-input type="number" [(ngModel)]="customWidth" placeholder="e.g. 60"></ion-input>
+        </ion-item>
+        <ion-item class="dim-item">
+          <ion-label position="floating">Thickness (inches)</ion-label>
+          <ion-input type="number" [(ngModel)]="customThickness" placeholder="e.g. 6"></ion-input>
+        </ion-item>
+      </div>
+    </div>
+
+    <!-- ── 2. Fabric ───────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">
+        <ion-icon name="color-palette-outline"></ion-icon>
+        <span>Fabric / Cover Type</span>
+      </div>
+
+      <div class="fabric-grid">
+        <button
+          *ngFor="let f of fabrics"
+          class="fabric-btn"
+          [class.selected]="selectedFabric === f.key"
+          (click)="selectedFabric = f.key">
+          <span class="fab-label">{{ f.label }}</span>
+          <span class="fab-desc">{{ f.desc }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── 3. Cotton Filling ──────────────────── -->
+    <div class="form-section">
+      <div class="section-label">
+        <ion-icon name="cloud-outline"></ion-icon>
+        <span>Cotton Filling Type</span>
+      </div>
+
+      <!-- Cotton type cards -->
+      <div class="cotton-grid">
+        <button
+          *ngFor="let c of cottonTypes"
+          class="cotton-btn"
+          [class.selected]="selectedCotton === c.key"
+          (click)="selectedCotton = c.key">
+          <div class="cotton-top">
+            <span class="cotton-label">{{ c.label }}</span>
+            <span class="cotton-badge" [class.badge-premium]="c.key === 'pure'">{{ c.badge }}</span>
+          </div>
+          <span class="cotton-desc">{{ c.desc }}</span>
+        </button>
+      </div>
+
+      <!-- Cotton weight -->
+      <div class="cotton-weight-row">
+        <div class="weight-info">
+          <ion-icon name="cloud-outline" color="primary"></ion-icon>
+          <span class="weight-label">Cotton Weight</span>
+        </div>
+
+        <!-- Standard sizes: show auto-filled weight (read-only) -->
+        <div class="weight-display" *ngIf="selectedSize !== 'Custom'">
+          <span class="weight-value">{{ cottonWeight }} kg</span>
+          <span class="weight-note">Standard for {{ selectedSize }}</span>
+        </div>
+
+        <!-- Custom size: user enters weight -->
+        <div class="weight-custom" *ngIf="selectedSize === 'Custom'">
+          <ion-item class="dim-item">
+            <ion-label position="floating">Cotton Weight (kg) *</ion-label>
+            <ion-input
+              type="number"
+              [(ngModel)]="customCottonKg"
+              placeholder="Enter kg needed">
+            </ion-input>
+          </ion-item>
+          <p class="weight-hint">Reference: Single ≈ 15 kg, Double ≈ 30 kg</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. Quantity ─────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">
+        <ion-icon name="bed-outline"></ion-icon>
+        <span>Quantity</span>
+      </div>
+
+      <div class="qty-row">
+        <button class="qty-btn" (click)="decreaseQty()" [disabled]="quantity <= 1">
+          <ion-icon name="remove-outline"></ion-icon>
+        </button>
+        <span class="qty-value">{{ quantity }}</span>
+        <button class="qty-btn" (click)="increaseQty()" [disabled]="quantity >= 10">
+          <ion-icon name="add-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── 4. Delivery Details ─────────────────── -->
+    <div class="form-section">
+      <div class="section-label">
+        <ion-icon name="home-outline"></ion-icon>
+        <span>Delivery Details</span>
+      </div>
+
+      <div class="fields-list">
+        <ion-item class="field-item">
+          <ion-icon name="checkmark-circle-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="floating">Full Name *</ion-label>
+          <ion-input
+            type="text"
+            [(ngModel)]="deliveryName"
+            placeholder="Recipient's full name">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="field-item">
+          <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="floating">Phone Number *</ion-label>
+          <ion-input
+            type="tel"
+            [(ngModel)]="deliveryPhone"
+            placeholder="10-digit mobile"
+            maxlength="10">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="field-item">
+          <ion-icon name="location-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="floating">Address *</ion-label>
+          <ion-input
+            type="text"
+            [(ngModel)]="deliveryAddress"
+            placeholder="House / Street / Area">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="field-item">
+          <ion-icon name="location-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="floating">City *</ion-label>
+          <ion-input
+            type="text"
+            [(ngModel)]="deliveryCity"
+            placeholder="City">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="field-item">
+          <ion-icon name="location-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="floating">Pincode *</ion-label>
+          <ion-input
+            type="tel"
+            [(ngModel)]="deliveryPincode"
+            placeholder="6-digit pincode"
+            maxlength="6">
+          </ion-input>
+        </ion-item>
+      </div>
+    </div>
+
+    <!-- ── 5. Notes ────────────────────────────── -->
+    <div class="form-section">
+      <div class="section-label">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <span>Special Instructions <span class="optional">(optional)</span></span>
+      </div>
+      <ion-item class="field-item notes-item">
+        <ion-textarea
+          [(ngModel)]="notes"
+          placeholder="Any specific requirements — firmness, colour preference, delivery timing..."
+          [rows]="3"
+          autoGrow="true">
+        </ion-textarea>
+      </ion-item>
+    </div>
+
+    <!-- ── Order Summary ──────────────────────── -->
+    <div class="summary-card">
+      <h3>Order Summary</h3>
+      <div class="summary-row">
+        <span>Mattress Type</span>
+        <span class="val">{{ mattressType | titlecase }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Size</span>
+        <span class="val">
+          {{ selectedSize }}
+          <ng-container *ngIf="selectedSize === 'Custom' && customLength">
+            ({{ customLength }}″ × {{ customWidth }}″ × {{ customThickness }}″)
+          </ng-container>
+        </span>
+      </div>
+      <div class="summary-row">
+        <span>Fabric</span>
+        <span class="val">{{ selectedFabric }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Cotton Filling</span>
+        <span class="val">
+          {{ selectedCotton === 'pure' ? 'Pure White' : 'Mixed White' }}
+          · {{ effectiveCottonWeight }} kg
+        </span>
+      </div>
+      <div class="summary-row">
+        <span>Quantity</span>
+        <span class="val">{{ quantity }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Shop</span>
+        <span class="val">{{ shopName }}</span>
+      </div>
+      <p class="price-note">
+        💬 The shop will contact you with the final price after reviewing your order.
+      </p>
+    </div>
+
+    <!-- ── Submit ─────────────────────────────── -->
+    <ion-button
+      expand="block"
+      class="submit-btn"
+      (click)="placeOrder()"
+      [disabled]="loading">
+      <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+      <ng-container *ngIf="!loading">
+        <ion-icon name="receipt-outline" slot="start"></ion-icon>
+        Place Order
+      </ng-container>
+    </ion-button>
+
+    <div style="height: 40px;"></div>
+  </div>
 </ion-content>
