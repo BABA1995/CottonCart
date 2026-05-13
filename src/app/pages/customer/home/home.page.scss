@@ -1,0 +1,384 @@
+// ─── Header ──────────────────────────────────────────────────────────────────
+
+ion-header ion-toolbar {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --border-color: transparent;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+
+  .loc-icon {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.9);
+    flex-shrink: 0;
+  }
+
+  .location-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .loc-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    opacity: 0.75;
+  }
+
+  .loc-city {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .loc-spinner {
+    --color: white;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.home-searchbar {
+  --background: rgba(255, 255, 255, 0.15);
+  --color: white;
+  --placeholder-color: rgba(255, 255, 255, 0.7);
+  --icon-color: rgba(255, 255, 255, 0.7);
+  --border-radius: 12px;
+  --box-shadow: none;
+  padding: 0 8px 8px;
+}
+
+// ─── Greeting ────────────────────────────────────────────────────────────────
+
+.greeting-section {
+  padding: 20px 16px 4px;
+
+  h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    color: var(--ion-color-dark);
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ─── Category Chips ──────────────────────────────────────────────────────────
+
+.categories-scroll {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar { display: none; }
+
+  ion-chip {
+    flex-shrink: 0;
+    --background: var(--ion-color-light);
+    --color: var(--ion-color-medium-shade);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.chip-active {
+      --background: var(--ion-color-primary);
+      --color: white;
+      font-weight: 600;
+    }
+  }
+}
+
+// ─── View Toggle ─────────────────────────────────────────────────────────────
+
+.view-toggle {
+  padding: 8px 16px;
+
+  ion-segment {
+    --background: var(--ion-color-light);
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 220px;
+  }
+
+  ion-segment-button {
+    --color: var(--ion-color-medium);
+    --color-checked: var(--ion-color-primary);
+    --indicator-color: white;
+    font-size: 13px;
+    min-height: 36px;
+  }
+}
+
+// ─── Section Header ──────────────────────────────────────────────────────────
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 16px 8px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--ion-color-dark);
+  }
+
+  .count-badge {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+    background: var(--ion-color-light);
+    padding: 2px 10px;
+    border-radius: 12px;
+  }
+}
+
+// ─── Loading / Empty State ───────────────────────────────────────────────────
+
+.center-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 72px;
+    color: var(--ion-color-medium-tint);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ─── Shop Cards ──────────────────────────────────────────────────────────────
+
+.shops-list {
+  padding: 0 12px;
+
+  .shop-card {
+    margin-bottom: 16px;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .shop-cover {
+      position: relative;
+      height: 155px;
+      background: linear-gradient(135deg,
+        var(--ion-color-primary),
+        var(--ion-color-primary-shade)
+      );
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .shop-initials {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 52px;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.55);
+        letter-spacing: 3px;
+        user-select: none;
+      }
+
+      .distance-pill {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(0, 0, 0, 0.55);
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+
+        ion-icon { font-size: 12px; }
+      }
+    }
+
+    .card-body {
+      padding: 14px;
+
+      .name-rating-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+
+        .shop-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--ion-color-dark);
+          margin: 0;
+          flex: 1;
+          padding-right: 8px;
+          line-height: 1.2;
+        }
+
+        .rating {
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          flex-shrink: 0;
+
+          ion-icon { font-size: 14px; }
+
+          span {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ion-color-dark);
+          }
+
+          .rev-count {
+            font-weight: 400;
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+
+      .shop-address {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+        margin: 0 0 10px;
+        line-height: 1.4;
+
+        ion-icon {
+          font-size: 13px;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+      }
+
+      .tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+
+        .tag {
+          background: rgba(var(--ion-color-primary-rgb), 0.1);
+          color: var(--ion-color-primary-shade);
+          border-radius: 6px;
+          padding: 3px 9px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+      }
+
+      .footer-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .price-info {
+          display: flex;
+          flex-direction: column;
+
+          .from-label {
+            font-size: 10px;
+            color: var(--ion-color-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+          }
+
+          .price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--ion-color-success-shade);
+          }
+        }
+
+        .view-btn {
+          --border-radius: 10px;
+          --padding-start: 14px;
+          --padding-end: 10px;
+          height: 36px;
+          font-size: 13px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// ─── Map View ────────────────────────────────────────────────────────────────
+
+.map-wrapper {
+  position: relative;
+  height: calc(100vh - 200px);   // full remaining screen height
+  min-height: 400px;
+
+  #map-container {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .map-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+    white-space: nowrap;
+  }
+}
+
+// Leaflet marker & popup global styles are in global.scss
+// (Leaflet injects markers into <body>, so they need global scope)

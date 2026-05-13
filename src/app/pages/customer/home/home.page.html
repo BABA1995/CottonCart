@@ -1,8 +1,167 @@
-<ion-header>
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<ion-header class="ion-no-border">
+
+  <!-- Location + Icons -->
   <ion-toolbar color="primary">
-    <ion-title>Home</ion-title>
+    <div class="location-row" (click)="detectLocation()" style="cursor:pointer">
+      <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+      <div class="location-text">
+        <span class="loc-label">Your Location</span>
+        <span class="loc-city" *ngIf="!loadingLocation">{{ cityName }}</span>
+        <ion-spinner *ngIf="loadingLocation" name="dots" class="loc-spinner"></ion-spinner>
+      </div>
+    </div>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="goToOrders()">
+        <ion-icon name="receipt-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" color="light" (click)="goToProfile()">
+        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" color="light" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
+
+  <!-- Search Bar -->
+  <ion-toolbar color="primary">
+    <ion-searchbar
+      placeholder="Search shops, spring, foam, coir..."
+      [(ngModel)]="searchQuery"
+      (ionInput)="onSearch()"
+      animated="true"
+      class="home-searchbar">
+    </ion-searchbar>
+  </ion-toolbar>
+
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Home page — coming soon</p>
+
+<!-- ══════════════════════════════════════════════
+     CONTENT
+══════════════════════════════════════════════ -->
+<ion-content>
+
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Greeting -->
+  <div class="greeting-section">
+    <h2>Hello, {{ userName }} 👋</h2>
+    <p>Find the perfect mattress near you</p>
+  </div>
+
+  <!-- Category Chips -->
+  <div class="categories-scroll">
+    <ion-chip
+      *ngFor="let cat of categories"
+      [class.chip-active]="selectedCategory === cat.key"
+      (click)="selectCategory(cat.key)">
+      <ion-label>{{ cat.label }}</ion-label>
+    </ion-chip>
+  </div>
+
+  <!-- List / Map Toggle -->
+  <div class="view-toggle">
+    <ion-segment [value]="viewMode" (ionChange)="onViewChange($event)" mode="md">
+      <ion-segment-button value="list">
+        <ion-icon name="list-outline"></ion-icon>
+        <ion-label>List</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="map">
+        <ion-icon name="map-outline"></ion-icon>
+        <ion-label>Map</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- ═══ LIST VIEW ═══════════════════════════════ -->
+  <ng-container *ngIf="viewMode === 'list'">
+
+    <!-- Section header -->
+    <div class="section-header">
+      <h3>Nearby Shops</h3>
+      <span class="count-badge" *ngIf="!loadingShops">{{ filteredShops.length }} found</span>
+    </div>
+
+    <!-- Loading -->
+    <div class="center-state" *ngIf="loadingShops">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Finding shops near you…</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="center-state" *ngIf="!loadingShops && filteredShops.length === 0">
+      <ion-icon name="storefront-outline" class="empty-icon"></ion-icon>
+      <h3>No shops found</h3>
+      <p *ngIf="searchQuery">Try a different search term</p>
+      <p *ngIf="!searchQuery">No mattress shops registered near you yet</p>
+    </div>
+
+    <!-- Shop Cards -->
+    <div class="shops-list" *ngIf="!loadingShops && filteredShops.length > 0">
+      <ion-card
+        *ngFor="let shop of filteredShops"
+        class="shop-card"
+        (click)="goToShop(shop)">
+
+        <div class="shop-cover">
+          <img *ngIf="shop.imageUrl" [src]="shop.imageUrl" [alt]="shop.name" />
+          <div *ngIf="!shop.imageUrl" class="shop-initials">{{ getInitials(shop.name) }}</div>
+          <div class="distance-pill" *ngIf="shop.distance !== undefined">
+            <ion-icon name="navigate-outline"></ion-icon>
+            {{ formatDistance(shop.distance) }}
+          </div>
+        </div>
+
+        <ion-card-content class="card-body">
+          <div class="name-rating-row">
+            <h2 class="shop-name">{{ shop.name }}</h2>
+            <div class="rating" *ngIf="shop.rating">
+              <ion-icon name="star" color="warning"></ion-icon>
+              <span>{{ shop.rating | number:'1.1-1' }}</span>
+              <span class="rev-count">({{ shop.reviewCount || 0 }})</span>
+            </div>
+          </div>
+
+          <p class="shop-address">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ shop.address }}, {{ shop.city }}
+          </p>
+
+          <div class="tags-row" *ngIf="shop.tags?.length">
+            <span class="tag" *ngFor="let tag of shop.tags">{{ tag }}</span>
+          </div>
+
+          <div class="footer-row">
+            <div class="price-info" *ngIf="shop.minPrice">
+              <span class="from-label">From</span>
+              <span class="price">₹{{ shop.minPrice | number }}</span>
+            </div>
+            <ion-button size="small" class="view-btn">
+              View Shop
+              <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-card-content>
+
+      </ion-card>
+    </div>
+
+  </ng-container>
+
+  <!-- ═══ MAP VIEW ════════════════════════════════ -->
+  <div *ngIf="viewMode === 'map'" class="map-wrapper">
+    <div id="map-container"></div>
+    <div class="map-hint" *ngIf="filteredShops.length === 0 && !loadingShops">
+      <ion-icon name="storefront-outline"></ion-icon>
+      No shops to show on map yet
+    </div>
+  </div>
+
+  <div style="height: 80px;"></div>
+
 </ion-content>

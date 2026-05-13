@@ -40,3 +40,73 @@ ion-content {
   font-weight: 700;
   height: 50px;
 }
+
+/* ── Leaflet Custom Markers (global — Leaflet injects into <body>) ── */
+
+.user-location-marker {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2196F3;
+  border: 3px solid white;
+  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
+  animation: ccPulse 2s infinite;
+}
+
+.shop-map-pin {
+  width: 44px;
+  height: 44px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--ion-color-primary, #3dc27a);
+  border: 3px solid white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-45deg);
+
+  span {
+    transform: rotate(45deg);
+    color: white;
+    font-size: 14px;
+    font-weight: 800;
+  }
+}
+
+.shop-map-label {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: #333;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.map-popup {
+  font-size: 13px;
+  line-height: 1.6;
+
+  strong { font-size: 14px; }
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+}
+
+@keyframes ccPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(33, 150, 243, 0.5); }
+  70%  { box-shadow: 0 0 0 12px rgba(33, 150, 243, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(33, 150, 243, 0); }
+}
