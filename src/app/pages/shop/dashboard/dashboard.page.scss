@@ -54,6 +54,30 @@ ion-header ion-toolbar { --background: var(--ion-color-primary); --color: white;
   }
 }
 
+// ── Photo Preview ─────────────────────────────────────────────────────────────
+.photo-preview-row {
+  display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px;
+}
+
+.photo-preview {
+  width: 72px; height: 72px; border-radius: 12px; flex-shrink: 0;
+  overflow: hidden; background: var(--ion-color-light);
+  border: 2px solid var(--ion-color-light-shade);
+  display: flex; align-items: center; justify-content: center;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.photo-initials {
+  font-size: 22px; font-weight: 800; color: var(--ion-color-medium);
+  letter-spacing: -1px;
+}
+
+.photo-instructions {
+  flex: 1;
+  p { font-size: 12px; color: var(--ion-color-medium); margin: 0 0 4px; line-height: 1.5; }
+}
+
 .loc-hint {
   font-size: 12px; color: var(--ion-color-medium); margin: 0 0 10px; line-height: 1.5;
 }

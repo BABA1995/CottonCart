@@ -29,6 +29,32 @@
       <p>Complete your shop profile to start receiving mattress orders from customers nearby.</p>
     </div>
 
+    <!-- Shop Photo -->
+    <div class="form-section">
+      <div class="section-label">Shop Photo</div>
+
+      <!-- Preview -->
+      <div class="photo-preview-row">
+        <div class="photo-preview">
+          <img *ngIf="form.imageUrl.trim()" [src]="form.imageUrl" alt="Shop photo"
+               (error)="form.imageUrl = ''" />
+          <div class="photo-initials" *ngIf="!form.imageUrl.trim()">
+            {{ form.name ? getInitials(form.name) : '🏪' }}
+          </div>
+        </div>
+        <div class="photo-instructions">
+          <p>Upload your shop photo to <strong>imgbb.com</strong> (free) and paste the link below.</p>
+          <p>This photo shows on your shop card and detail page for customers.</p>
+        </div>
+      </div>
+
+      <ion-item class="field-item">
+        <ion-label position="floating">Shop Photo URL (optional)</ion-label>
+        <ion-input [(ngModel)]="form.imageUrl" type="url"
+          placeholder="https://i.ibb.co/…"></ion-input>
+      </ion-item>
+    </div>
+
     <!-- Setup Form -->
     <div class="form-section">
       <div class="section-label">Shop Details</div>

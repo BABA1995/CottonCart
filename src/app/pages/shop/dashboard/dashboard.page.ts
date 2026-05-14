@@ -52,17 +52,18 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
 
   // ─── Setup form ───────────────────────────────────────────────────────────
   form = {
-    name:     '',
-    phone:    '',
-    address:  '',
-    city:     '',
-    state:    '',
-    pincode:  '',
-    minPrice: '',
-    maxPrice: '',
-    tags:     [] as string[],
-    lat:      0,
-    lng:      0
+    name:      '',
+    phone:     '',
+    address:   '',
+    city:      '',
+    state:     '',
+    pincode:   '',
+    minPrice:  '',
+    maxPrice:  '',
+    tags:      [] as string[],
+    lat:       0,
+    lng:       0,
+    imageUrl:  ''
   };
 
   readonly tagOptions = [
@@ -153,6 +154,10 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   isTagSelected(key: string) { return this.form.tags.includes(key); }
+
+  getInitials(name: string): string {
+    return (name || '??').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
 
   // ─── Location Picker Map ──────────────────────────────────────────────────
 
@@ -252,6 +257,7 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
         tags:      f.tags,
         minPrice:  +f.minPrice || 0,
         maxPrice:  +f.maxPrice || 0,
+        ...(f.imageUrl.trim() ? { imageUrl: f.imageUrl.trim() } : {}),
       } as any);
       this.showToast('Shop created successfully! 🎉', 'success');
     } catch (e) {

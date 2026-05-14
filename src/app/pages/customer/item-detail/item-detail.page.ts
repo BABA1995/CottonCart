@@ -3,7 +3,7 @@ import { NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonButton, IonIcon, IonSpinner, IonBadge,
+  IonIcon, IonSpinner,
   NavController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -25,7 +25,7 @@ import { ShopModel } from '../../../models/shop.model';
   standalone: true,
   imports: [
     IonContent, IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonButton, IonIcon, IonSpinner, IonBadge,
+    IonIcon, IonSpinner,
     NgIf, NgFor, DecimalPipe
   ],
 })
