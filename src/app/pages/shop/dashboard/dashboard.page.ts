@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked } from '@angular/core';
+import * as L from 'leaflet';
 import { NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -11,7 +12,7 @@ import { addIcons } from 'ionicons';
 import {
   storefrontOutline, receiptOutline, checkmarkCircleOutline,
   timeOutline, bicycleOutline, logOutOutline, listOutline,
-  locationOutline, callOutline, pricetagOutline, addCircleOutline,
+  locationOutline, locateOutline, callOutline, pricetagOutline, addCircleOutline,
   personOutline, cubeOutline, bedOutline, sparklesOutline,
   leafOutline, cogOutline, flowerOutline
 } from 'ionicons/icons';
@@ -34,7 +35,7 @@ import { OrderModel, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '../../../m
     NgIf, NgFor, FormsModule, DecimalPipe
   ],
 })
-export class DashboardPage implements OnInit, OnDestroy {
+export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
 
   // ─── State ────────────────────────────────────────────────────────────────
   myShop:      ShopModel | null = null;
@@ -43,6 +44,11 @@ export class DashboardPage implements OnInit, OnDestroy {
   settingUp    = false;
   currentUid   = '';
   ownerName    = '';
+
+  // ─── Location map ─────────────────────────────────────────────────────────
+  private locationMap:    L.Map | null    = null;
+  private locationMarker: L.Marker | null = null;
+  private mapInitialised  = false;
 
   // ─── Setup form ───────────────────────────────────────────────────────────
   form = {
@@ -84,7 +90,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     addIcons({
       storefrontOutline, receiptOutline, checkmarkCircleOutline,
       timeOutline, bicycleOutline, logOutOutline, listOutline,
-      locationOutline, callOutline, pricetagOutline, addCircleOutline,
+      locationOutline, locateOutline, callOutline, pricetagOutline, addCircleOutline,
       personOutline, cubeOutline, bedOutline, sparklesOutline,
       leafOutline, cogOutline, flowerOutline
     });
@@ -104,6 +110,18 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.shopSub?.unsubscribe();
     this.ordersSub?.unsubscribe();
     this.userSub?.unsubscribe();
+    this.locationMap?.remove();
+    this.locationMap    = null;
+    this.locationMarker = null;
+    this.mapInitialised = false;
+  }
+
+  /** Init the location-picker map once the setup form is visible in DOM */
+  ngAfterViewChecked() {
+    if (!this.myShop && !this.loadingShop && !this.mapInitialised) {
+      const el = document.getElementById('location-picker-map');
+      if (el) { this.initLocationMap(); }
+    }
   }
 
   // ─── Load Shop ────────────────────────────────────────────────────────────
@@ -136,16 +154,73 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   isTagSelected(key: string) { return this.form.tags.includes(key); }
 
-  // ─── Get GPS ──────────────────────────────────────────────────────────────
+  // ─── Location Picker Map ──────────────────────────────────────────────────
 
-  getLocation() {
-    if (!navigator.geolocation) return;
+  private initLocationMap() {
+    this.mapInitialised = true;
+
+    // Default centre: middle of India
+    const defaultLat = this.form.lat || 20.5937;
+    const defaultLng = this.form.lng || 78.9629;
+    const zoom       = this.form.lat ? 15 : 5;
+
+    this.locationMap = L.map('location-picker-map', { zoomControl: true })
+      .setView([defaultLat, defaultLng], zoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(this.locationMap);
+
+    // Draggable marker
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="shop-setup-pin">🏪</div>`,
+      iconSize:   [36, 36],
+      iconAnchor: [18, 36]
+    });
+
+    this.locationMarker = L.marker([defaultLat, defaultLng], {
+      draggable: true,
+      icon
+    }).addTo(this.locationMap!);
+
+    this.locationMarker.bindPopup('📍 Drag me to your exact shop location').openPopup();
+
+    // Update lat/lng on drag end
+    this.locationMarker.on('dragend', () => {
+      const pos = this.locationMarker!.getLatLng();
+      this.form.lat = +pos.lat.toFixed(6);
+      this.form.lng = +pos.lng.toFixed(6);
+    });
+
+    // Also allow clicking the map to move marker
+    this.locationMap.on('click', (e: L.LeafletMouseEvent) => {
+      this.locationMarker!.setLatLng(e.latlng);
+      this.form.lat = +e.latlng.lat.toFixed(6);
+      this.form.lng = +e.latlng.lng.toFixed(6);
+    });
+  }
+
+  detectLocation(): void {
+    if (!navigator.geolocation) {
+      this.showToast('GPS not supported on this device', 'warning');
+      return;
+    }
     navigator.geolocation.getCurrentPosition(pos => {
-      this.form.lat = pos.coords.latitude;
-      this.form.lng = pos.coords.longitude;
-      this.showToast('Location detected ✅', 'success');
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      this.form.lat = +lat.toFixed(6);
+      this.form.lng = +lng.toFixed(6);
+
+      if (this.locationMap && this.locationMarker) {
+        this.locationMap.setView([lat, lng], 16);
+        this.locationMarker.setLatLng([lat, lng]);
+        this.locationMarker.openPopup();
+      }
+      this.showToast('Location detected — drag the pin to fine-tune ✅', 'success');
     }, () => {
-      this.showToast('Could not detect location. Enter coordinates manually.', 'warning');
+      this.showToast('Could not detect GPS. Drag the pin on the map manually.', 'warning');
     });
   }
 

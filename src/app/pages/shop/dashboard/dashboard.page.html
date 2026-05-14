@@ -92,9 +92,24 @@
     <!-- Location -->
     <div class="form-section">
       <div class="section-label">Shop Location (for map)</div>
-      <ion-button expand="block" fill="outline" (click)="getLocation()" class="loc-btn">
-        <ion-icon name="location-outline" slot="start"></ion-icon>
-        {{ form.lat ? 'Location: ' + (form.lat | number:'1.4-4') + ', ' + (form.lng | number:'1.4-4') : 'Detect My Location' }}
+      <p class="loc-hint">
+        Drag the 🏪 pin to your exact shop location, or tap anywhere on the map.
+        Use the button below if you are at the shop right now.
+      </p>
+
+      <!-- Map -->
+      <div id="location-picker-map" class="location-map"></div>
+
+      <!-- Coordinates display -->
+      <div class="coords-row" *ngIf="form.lat">
+        <ion-icon name="location-outline" color="primary"></ion-icon>
+        <span>{{ form.lat | number:'1.4-4' }}, {{ form.lng | number:'1.4-4' }}</span>
+      </div>
+
+      <!-- Detect GPS button -->
+      <ion-button expand="block" fill="outline" (click)="detectLocation()" class="loc-btn">
+        <ion-icon name="locate-outline" slot="start"></ion-icon>
+        Detect My Location (I'm at the shop now)
       </ion-button>
     </div>
 

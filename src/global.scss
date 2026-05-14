@@ -53,6 +53,15 @@ ion-content {
   animation: ccPulse 2s infinite;
 }
 
+/* Shop location picker pin (setup form) */
+.shop-setup-pin {
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  cursor: grab;
+  &:active { cursor: grabbing; }
+}
+
 .shop-map-pin {
   width: 44px;
   height: 44px;
