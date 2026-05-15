@@ -2,14 +2,13 @@ import { Component } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
-  IonItem, IonInput, IonButton, IonIcon, IonSpinner,
+  IonContent, IonInput, IonButton, IonIcon, IonSpinner,
   ToastController, NavController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  bedOutline, mailOutline, lockClosedOutline,
-  eyeOutline, eyeOffOutline, arrowBackOutline
+  bedOutline, phonePortraitOutline, keypadOutline,
+  arrowBackOutline, checkmarkCircleOutline, refreshOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
 
@@ -19,77 +18,100 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./login.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
-    IonItem, IonInput, IonButton, IonIcon, IonSpinner,
+    IonContent, IonInput, IonButton, IonIcon, IonSpinner,
     NgIf, FormsModule
   ],
 })
 export class LoginPage {
-  email        = '';
-  password     = '';
-  showPassword = false;
-  loading      = false;
-  role         = localStorage.getItem('selectedRole') || 'customer';
+
+  step: 1 | 2 = 1;      // 1 = enter phone  |  2 = enter OTP
+  phone   = '';
+  otp     = '';
+  loading = false;
+  role    = (localStorage.getItem('selectedRole') || 'customer') as 'customer' | 'shop';
 
   constructor(
     private authService: AuthService,
-    private navCtrl: NavController,
-    private toastCtrl: ToastController
+    private navCtrl:     NavController,
+    private toastCtrl:   ToastController
   ) {
-    addIcons({ bedOutline, mailOutline, lockClosedOutline,
-               eyeOutline, eyeOffOutline, arrowBackOutline });
+    addIcons({
+      bedOutline, phonePortraitOutline, keypadOutline,
+      arrowBackOutline, checkmarkCircleOutline, refreshOutline
+    });
   }
 
-  togglePassword() {
-    this.showPassword = !this.showPassword;
-  }
+  // ─── Step 1: Send OTP ────────────────────────────────────────────────────
 
-  async login() {
-    if (!this.email || !this.password) {
-      return this.showToast('Please enter email and password', 'warning');
+  async sendOtp() {
+    const digits = this.phone.replace(/\D/g, '');
+    if (digits.length !== 10) {
+      return this.showToast('Enter a valid 10-digit mobile number', 'warning');
     }
+
     this.loading = true;
     try {
-      const user = await this.authService.login(this.email, this.password);
-      if (user.role === 'shop') {
-        this.navCtrl.navigateRoot('/shop/dashboard');
-      } else {
-        this.navCtrl.navigateRoot('/customer');
-      }
-    } catch (err: any) {
-      this.showToast(this.getErrorMessage(err.code), 'danger');
+      await this.authService.sendOtp(`+91${digits}`);
+      this.step = 2;
+      this.showToast('OTP sent ✅', 'success');
+    } catch (e: any) {
+      console.error(e);
+      this.showToast(this.errorMessage(e.code), 'danger');
     } finally {
       this.loading = false;
     }
   }
 
-  goToSignup() {
-    this.navCtrl.navigateForward('/signup');
+  // ─── Step 2: Verify OTP ──────────────────────────────────────────────────
+
+  async verifyOtp() {
+    const code = this.otp.replace(/\D/g, '');
+    if (code.length !== 6) {
+      return this.showToast('Enter the 6-digit OTP', 'warning');
+    }
+
+    this.loading = true;
+    try {
+      const profile = await this.authService.verifyOtp(code, this.role);
+      if (profile.role === 'shop') {
+        this.navCtrl.navigateRoot('/shop/dashboard');
+      } else {
+        this.navCtrl.navigateRoot('/customer');
+      }
+    } catch (e: any) {
+      console.error(e);
+      this.showToast(this.errorMessage(e.code), 'danger');
+    } finally {
+      this.loading = false;
+    }
   }
 
-  goBack() {
-    this.navCtrl.navigateBack('/role-select');
+  // ─── Navigation ──────────────────────────────────────────────────────────
+
+  changeNumber() {
+    this.step  = 1;
+    this.otp   = '';
   }
 
-  async forgotPassword() {
-    this.showToast('Password reset — coming soon!', 'primary');
-  }
+  goBack() { this.navCtrl.navigateBack('/role-select'); }
 
-  async showToast(message: string, color: string = 'danger') {
-    const toast = await this.toastCtrl.create({
+  // ─── Helpers ─────────────────────────────────────────────────────────────
+
+  async showToast(message: string, color = 'danger') {
+    const t = await this.toastCtrl.create({
       message, duration: 3000, position: 'bottom', color
     });
-    toast.present();
+    t.present();
   }
 
-  getErrorMessage(code: string): string {
-    const errors: Record<string, string> = {
-      'auth/user-not-found'    : 'No account found with this email',
-      'auth/wrong-password'    : 'Incorrect password. Try again',
-      'auth/invalid-email'     : 'Invalid email address',
-      'auth/invalid-credential': 'Invalid email or password',
-      'auth/too-many-requests' : 'Too many attempts. Please try later'
+  errorMessage(code: string): string {
+    const map: Record<string, string> = {
+      'auth/invalid-phone-number'      : 'Invalid phone number. Use a 10-digit Indian mobile number.',
+      'auth/too-many-requests'         : 'Too many attempts. Please try again after some time.',
+      'auth/invalid-verification-code' : 'Wrong OTP. Please check and try again.',
+      'auth/code-expired'              : 'OTP expired. Tap "Change Number" to request a new one.',
+      'auth/quota-exceeded'            : 'SMS quota exceeded. Try again later.',
     };
-    return errors[code] || 'Login failed. Please try again.';
+    return map[code] ?? 'Something went wrong. Please try again.';
   }
 }

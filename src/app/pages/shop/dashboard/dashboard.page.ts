@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
   IonButton, IonIcon, IonSpinner, IonCard, IonCardContent,
-  IonItem, IonInput, IonLabel,
+  IonInput,
   NavController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -32,7 +32,7 @@ import { OrderModel, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '../../../m
   imports: [
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
     IonButton, IonIcon, IonSpinner, IonCard, IonCardContent,
-    IonItem, IonInput, IonLabel,
+    IonInput,
     NgIf, NgFor, FormsModule, DecimalPipe
   ],
 })

@@ -1,78 +1,87 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button (click)="goBack()" fill="clear" color="light">
-        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>Sign In</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="otp-content">
 
-<ion-content class="login-content">
-  <div class="login-container">
+  <!-- Invisible reCAPTCHA — Firebase needs this div in the DOM -->
+  <div id="recaptcha-container"></div>
+
+  <div class="otp-wrapper">
 
     <!-- Logo -->
-    <div class="login-header">
-      <ion-icon name="bed-outline" class="logo-icon"></ion-icon>
+    <div class="brand">
+      <ion-icon name="bed-outline"></ion-icon>
       <h1>CottonCart</h1>
-      <p class="role-badge">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</p>
+      <span class="role-pill">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</span>
     </div>
 
-    <!-- Form -->
-    <div class="login-form">
-      <h2>Welcome Back</h2>
-      <p class="subtitle">Sign in to continue</p>
+    <!-- ══ STEP 1: Phone Number ══════════════════════════════════════ -->
+    <div class="auth-card" *ngIf="step === 1">
+      <h2>Enter Mobile Number</h2>
+      <p class="sub">We'll send a one-time OTP to verify your number</p>
 
-      <!-- Email -->
-      <ion-item class="form-item">
-        <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+      <div class="phone-row">
+        <div class="country-chip">🇮🇳 +91</div>
         <ion-input
-          type="email"
-          label="Email Address"
-          labelPlacement="floating"
-          placeholder="you@example.com"
-          [(ngModel)]="email"
-          autocomplete="email">
+          type="tel"
+          [(ngModel)]="phone"
+          placeholder="10-digit number"
+          maxlength="10"
+          inputmode="numeric"
+          class="phone-input"
+          (keyup.enter)="sendOtp()">
         </ion-input>
-      </ion-item>
-
-      <!-- Password -->
-      <ion-item class="form-item">
-        <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
-        <ion-input
-          [type]="showPassword ? 'text' : 'password'"
-          label="Password"
-          labelPlacement="floating"
-          placeholder="Enter your password"
-          [(ngModel)]="password">
-        </ion-input>
-        <ion-icon
-          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-          slot="end" color="medium"
-          (click)="togglePassword()"
-          style="cursor:pointer">
-        </ion-icon>
-      </ion-item>
-
-      <!-- Forgot Password -->
-      <div class="forgot-row">
-        <span (click)="forgotPassword()">Forgot Password?</span>
       </div>
 
-      <!-- Login Button -->
-      <ion-button expand="block" class="btn-login" (click)="login()" [disabled]="loading">
+      <ion-button
+        expand="block"
+        class="primary-btn"
+        (click)="sendOtp()"
+        [disabled]="loading">
         <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
-        <span *ngIf="!loading">Login</span>
+        <ng-container *ngIf="!loading">
+          <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
+          Send OTP
+        </ng-container>
       </ion-button>
 
-      <!-- Divider -->
-      <div class="divider"><span>OR</span></div>
+      <p class="back-link" (click)="goBack()">← Back to role selection</p>
+    </div>
 
-      <!-- Signup Link -->
-      <ion-button expand="block" fill="outline" class="btn-signup" (click)="goToSignup()">
-        Create New Account
+    <!-- ══ STEP 2: Enter OTP ═════════════════════════════════════════ -->
+    <div class="auth-card" *ngIf="step === 2">
+
+      <div class="sent-badge">
+        <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+        <span>OTP sent to <strong>+91 {{ phone }}</strong></span>
+      </div>
+
+      <h2>Enter OTP</h2>
+      <p class="sub">Enter the 6-digit code sent via SMS</p>
+
+      <ion-input
+        type="tel"
+        [(ngModel)]="otp"
+        placeholder="• • • • • •"
+        maxlength="6"
+        inputmode="numeric"
+        class="otp-input"
+        (keyup.enter)="verifyOtp()">
+      </ion-input>
+
+      <ion-button
+        expand="block"
+        class="primary-btn"
+        (click)="verifyOtp()"
+        [disabled]="loading">
+        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+        <ng-container *ngIf="!loading">
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          Verify &amp; Login
+        </ng-container>
       </ion-button>
+
+      <p class="change-number" (click)="changeNumber()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        Change number / Resend OTP
+      </p>
     </div>
 
   </div>

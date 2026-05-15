@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Auth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult,
   signOut,
   user
 } from '@angular/fire/auth';
@@ -16,71 +17,79 @@ import { UserModel } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private auth     = inject(Auth);
+  private auth      = inject(Auth);
   private firestore = inject(Firestore);
 
-  // Observable stream of current logged-in Firebase user
+  /** Observable of the currently signed-in Firebase user */
   currentUser$ = user(this.auth);
 
+  private recaptchaVerifier:  RecaptchaVerifier  | null = null;
+  private confirmationResult: ConfirmationResult | null = null;
+
+  // ─── Phone OTP Auth ───────────────────────────────────────────────────────
+
   /**
-   * SIGNUP
-   * Creates a Firebase Auth account then saves user profile to Firestore
+   * Step 1 — Send OTP.
+   * Attaches an invisible reCAPTCHA to `containerId` and sends SMS to phoneE164.
+   * phoneE164 must be in E.164 format e.g. +919876543210
    */
-  async signup(
-    email: string,
-    password: string,
-    name: string,
-    phone: string,
-    role: 'customer' | 'shop'
+  async sendOtp(phoneE164: string, containerId = 'recaptcha-container'): Promise<void> {
+    // Always recreate verifier to avoid stale state
+    try { this.recaptchaVerifier?.clear(); } catch { /* ignore */ }
+
+    this.recaptchaVerifier = new RecaptchaVerifier(this.auth, containerId, {
+      size: 'invisible',
+      callback: () => { /* reCAPTCHA passed automatically */ }
+    });
+
+    this.confirmationResult = await signInWithPhoneNumber(
+      this.auth, phoneE164, this.recaptchaVerifier
+    );
+  }
+
+  /**
+   * Step 2 — Verify OTP.
+   * Confirms the code the user entered. Creates a Firestore user profile if new.
+   */
+  async verifyOtp(otp: string, role: 'customer' | 'shop'): Promise<UserModel> {
+    if (!this.confirmationResult) throw new Error('No OTP pending. Call sendOtp first.');
+    const credential = await this.confirmationResult.confirm(otp);
+    const uid   = credential.user.uid;
+    const phone = credential.user.phoneNumber ?? '';
+    return this.saveUserIfNew(uid, phone, role);
+  }
+
+  /** Creates user profile in Firestore on first login; returns existing profile otherwise. */
+  private async saveUserIfNew(
+    uid: string, phone: string, role: 'customer' | 'shop'
   ): Promise<UserModel> {
-    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
-    const uid = credential.user.uid;
+    const ref  = doc(this.firestore, 'users', uid);
+    const snap = await getDoc(ref);
 
-    const userProfile: UserModel = {
-      uid,
-      name,
-      email,
-      phone,
-      role,
-      createdAt: new Date()
+    if (snap.exists()) {
+      const profile = snap.data() as UserModel;
+      localStorage.setItem('selectedRole', profile.role);
+      return profile;
+    }
+
+    const profile: UserModel = {
+      uid, name: '', email: '', phone, role, createdAt: new Date()
     };
-
-    // Save user profile to Firestore 'users' collection
-    await setDoc(doc(this.firestore, 'users', uid), userProfile);
+    await setDoc(ref, profile);
     localStorage.setItem('selectedRole', role);
-    return userProfile;
+    return profile;
   }
 
-  /**
-   * LOGIN
-   * Signs in via Firebase Auth then fetches user profile from Firestore
-   */
-  async login(email: string, password: string): Promise<UserModel> {
-    const credential = await signInWithEmailAndPassword(this.auth, email, password);
-    const uid = credential.user.uid;
+  // ─── Helpers ─────────────────────────────────────────────────────────────
 
-    // Fetch profile from Firestore to get the role
-    const userDoc = await getDoc(doc(this.firestore, 'users', uid));
-    const userProfile = userDoc.data() as UserModel;
-    localStorage.setItem('selectedRole', userProfile.role);
-    return userProfile;
+  async getUserRole(uid: string): Promise<string> {
+    const snap = await getDoc(doc(this.firestore, 'users', uid));
+    return (snap.data() as UserModel)?.role ?? 'customer';
   }
 
-  /**
-   * LOGOUT
-   * Signs out from Firebase and clears local storage
-   */
   async logout(): Promise<void> {
+    try { this.recaptchaVerifier?.clear(); } catch { /* ignore */ }
     await signOut(this.auth);
     localStorage.clear();
-  }
-
-  /**
-   * Get user role from Firestore by uid
-   */
-  async getUserRole(uid: string): Promise<string> {
-    const userDoc = await getDoc(doc(this.firestore, 'users', uid));
-    const data = userDoc.data() as UserModel;
-    return data?.role || 'customer';
   }
 }

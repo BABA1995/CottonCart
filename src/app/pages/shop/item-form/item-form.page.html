@@ -20,7 +20,6 @@
     <div class="form-section">
       <div class="section-label">Photos (up to 3)</div>
 
-      <!-- Hidden file inputs for each slot -->
       <input type="file" accept="image/*" id="photoInput0" style="display:none"
              (change)="pickPhoto(0, $event)" />
       <input type="file" accept="image/*" id="photoInput1" style="display:none"
@@ -29,99 +28,84 @@
              (change)="pickPhoto(2, $event)" />
 
       <div class="photo-slots">
-        <!-- Slot 0 -->
-        <div class="photo-slot">
-          <div class="slot-preview" [class.has-photo]="photos[0]">
-            <img *ngIf="photos[0]" [src]="photos[0]" alt="Photo 1" />
-            <div class="slot-overlay" *ngIf="uploadingSlot === 0">
+        <div class="photo-slot" *ngFor="let slot of slots">
+          <div class="slot-preview" [class.has-photo]="photos[slot]">
+            <img *ngIf="photos[slot]" [src]="photos[slot]" [alt]="'Photo ' + (slot+1)" />
+            <div class="slot-overlay" *ngIf="uploadingSlot === slot">
               <ion-spinner name="crescent" color="light"></ion-spinner>
             </div>
-            <ion-icon name="camera-outline" *ngIf="!photos[0] && uploadingSlot !== 0"></ion-icon>
+            <ion-icon name="camera-outline" *ngIf="!photos[slot] && uploadingSlot !== slot"></ion-icon>
           </div>
           <div class="slot-actions">
-            <label for="photoInput0" class="slot-pick" [class.disabled]="uploadingSlot !== -1">
-              {{ photos[0] ? 'Change' : 'Add' }}
+            <label [for]="'photoInput' + slot" class="slot-pick"
+                   [class.disabled]="uploadingSlot !== -1">
+              {{ photos[slot] ? 'Change' : 'Add' }}
             </label>
-            <button *ngIf="photos[0]" class="slot-remove" (click)="removePhoto(0)">✕</button>
+            <button *ngIf="photos[slot]" class="slot-remove" (click)="removePhoto(slot)">✕</button>
           </div>
-          <span class="slot-label">Main</span>
-        </div>
-
-        <!-- Slot 1 -->
-        <div class="photo-slot">
-          <div class="slot-preview" [class.has-photo]="photos[1]">
-            <img *ngIf="photos[1]" [src]="photos[1]" alt="Photo 2" />
-            <div class="slot-overlay" *ngIf="uploadingSlot === 1">
-              <ion-spinner name="crescent" color="light"></ion-spinner>
-            </div>
-            <ion-icon name="camera-outline" *ngIf="!photos[1] && uploadingSlot !== 1"></ion-icon>
-          </div>
-          <div class="slot-actions">
-            <label for="photoInput1" class="slot-pick" [class.disabled]="uploadingSlot !== -1">
-              {{ photos[1] ? 'Change' : 'Add' }}
-            </label>
-            <button *ngIf="photos[1]" class="slot-remove" (click)="removePhoto(1)">✕</button>
-          </div>
-          <span class="slot-label">Photo 2</span>
-        </div>
-
-        <!-- Slot 2 -->
-        <div class="photo-slot">
-          <div class="slot-preview" [class.has-photo]="photos[2]">
-            <img *ngIf="photos[2]" [src]="photos[2]" alt="Photo 3" />
-            <div class="slot-overlay" *ngIf="uploadingSlot === 2">
-              <ion-spinner name="crescent" color="light"></ion-spinner>
-            </div>
-            <ion-icon name="camera-outline" *ngIf="!photos[2] && uploadingSlot !== 2"></ion-icon>
-          </div>
-          <div class="slot-actions">
-            <label for="photoInput2" class="slot-pick" [class.disabled]="uploadingSlot !== -1">
-              {{ photos[2] ? 'Change' : 'Add' }}
-            </label>
-            <button *ngIf="photos[2]" class="slot-remove" (click)="removePhoto(2)">✕</button>
-          </div>
-          <span class="slot-label">Photo 3</span>
+          <span class="slot-label">{{ slot === 0 ? 'Main' : 'Photo ' + (slot+1) }}</span>
         </div>
       </div>
 
-      <p class="hint">Tap a slot to pick from gallery or take a photo with your camera.</p>
+      <p class="hint">Tap a slot — pick from gallery or take a live photo.</p>
     </div>
 
     <!-- ── Basic Info ──────────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="section-label">Basic Information</div>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Item Name *</ion-label>
-        <ion-input [(ngModel)]="name" placeholder="e.g. King Size Cotton Bed Sheet"></ion-input>
-      </ion-item>
+      <ion-input
+        label="Item Name *"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="name"
+        placeholder="e.g. King Size Cotton Bed Sheet"
+        class="field-input">
+      </ion-input>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Category *</ion-label>
-        <ion-select [(ngModel)]="category" placeholder="Select category">
-          <ion-select-option *ngFor="let c of categories" [value]="c.key">{{ c.label }}</ion-select-option>
-        </ion-select>
-      </ion-item>
+      <ion-select
+        label="Category *"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="category"
+        placeholder="Select category"
+        class="field-input">
+        <ion-select-option *ngFor="let c of categories" [value]="c.key">{{ c.label }}</ion-select-option>
+      </ion-select>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Description *</ion-label>
-        <ion-textarea [(ngModel)]="description" rows="3"
-          placeholder="Describe the item — material quality, key features…"></ion-textarea>
-      </ion-item>
+      <ion-textarea
+        label="Description *"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="description"
+        rows="3"
+        placeholder="Describe the item — material quality, key features…"
+        class="field-input">
+      </ion-textarea>
     </div>
 
     <!-- ── Pricing ─────────────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="section-label">Pricing (₹)</div>
       <div class="two-col">
-        <ion-item class="field-item">
-          <ion-label position="floating">Selling Price *</ion-label>
-          <ion-input type="number" [(ngModel)]="price" placeholder="599"></ion-input>
-        </ion-item>
-        <ion-item class="field-item">
-          <ion-label position="floating">MRP (optional)</ion-label>
-          <ion-input type="number" [(ngModel)]="mrp" placeholder="799"></ion-input>
-        </ion-item>
+        <ion-input
+          label="Selling Price *"
+          label-placement="floating"
+          fill="outline"
+          type="number"
+          [(ngModel)]="price"
+          placeholder="599"
+          class="field-input">
+        </ion-input>
+        <ion-input
+          label="MRP (optional)"
+          label-placement="floating"
+          fill="outline"
+          type="number"
+          [(ngModel)]="mrp"
+          placeholder="799"
+          class="field-input">
+        </ion-input>
       </div>
       <p class="hint">Leave MRP blank if there's no discount to show</p>
     </div>
@@ -129,10 +113,14 @@
     <!-- ── Size ───────────────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="section-label">Size / Dimensions</div>
-      <ion-item class="field-item">
-        <ion-label position="floating">Size Label *</ion-label>
-        <ion-input [(ngModel)]="sizeLabel" placeholder='e.g. "72×108 inches", "King", "Standard 24×16"'></ion-input>
-      </ion-item>
+      <ion-input
+        label="Size Label *"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="sizeLabel"
+        placeholder='e.g. "72×108 inches", "King", "Standard 24×16"'
+        class="field-input">
+      </ion-input>
       <p class="hint">Use inches or cm — be specific so customers know exactly what they're getting</p>
     </div>
 
@@ -140,33 +128,55 @@
     <div class="form-section">
       <div class="section-label">Fabric Details</div>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Fabric Type *</ion-label>
-        <ion-select [(ngModel)]="fabricType" placeholder="Select fabric">
-          <ion-select-option *ngFor="let f of fabricTypes" [value]="f">{{ f }}</ion-select-option>
-        </ion-select>
-      </ion-item>
+      <ion-select
+        label="Fabric Type *"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="fabricType"
+        placeholder="Select fabric"
+        class="field-input">
+        <ion-select-option *ngFor="let f of fabricTypes" [value]="f">{{ f }}</ion-select-option>
+      </ion-select>
 
       <div class="three-col">
-        <ion-item class="field-item">
-          <ion-label position="floating">GSM</ion-label>
-          <ion-input type="number" [(ngModel)]="fabricGsm" placeholder="180"></ion-input>
-        </ion-item>
-        <ion-item class="field-item">
-          <ion-label position="floating">Thread Count</ion-label>
-          <ion-input type="number" [(ngModel)]="threadCount" placeholder="200"></ion-input>
-        </ion-item>
-        <ion-item class="field-item">
-          <ion-label position="floating">Fabric (metres)</ion-label>
-          <ion-input type="number" [(ngModel)]="fabricMeters" placeholder="4.5"></ion-input>
-        </ion-item>
+        <ion-input
+          label="GSM"
+          label-placement="floating"
+          fill="outline"
+          type="number"
+          [(ngModel)]="fabricGsm"
+          placeholder="180"
+          class="field-input">
+        </ion-input>
+        <ion-input
+          label="Thread Count"
+          label-placement="floating"
+          fill="outline"
+          type="number"
+          [(ngModel)]="threadCount"
+          placeholder="200"
+          class="field-input">
+        </ion-input>
+        <ion-input
+          label="Metres"
+          label-placement="floating"
+          fill="outline"
+          type="number"
+          [(ngModel)]="fabricMeters"
+          placeholder="4.5"
+          class="field-input">
+        </ion-input>
       </div>
-      <p class="hint">GSM = fabric weight per m². Thread count for bed sheets. Metres = fabric used to make this item.</p>
+      <p class="hint">GSM = fabric weight per m². Thread count for bed sheets.</p>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Colour / Pattern</ion-label>
-        <ion-input [(ngModel)]="color" placeholder="e.g. White, Blue Floral, Off-white"></ion-input>
-      </ion-item>
+      <ion-input
+        label="Colour / Pattern"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="color"
+        placeholder="e.g. White, Blue Floral, Off-white"
+        class="field-input">
+      </ion-input>
     </div>
 
     <!-- ── Filling ─────────────────────────────────────────────────────── -->
@@ -184,27 +194,42 @@
         </button>
       </div>
 
-      <ion-item class="field-item" style="margin-top:10px">
-        <ion-label position="floating">Fill Weight (kg)</ion-label>
-        <ion-input type="number" [(ngModel)]="fillWeight" placeholder="e.g. 1.5 for pillow, 15 for mattress"></ion-input>
-      </ion-item>
+      <ion-input
+        label="Fill Weight (kg)"
+        label-placement="floating"
+        fill="outline"
+        type="number"
+        [(ngModel)]="fillWeight"
+        placeholder="e.g. 1.5 for pillow, 15 for mattress"
+        class="field-input"
+        style="margin-top:12px">
+      </ion-input>
     </div>
 
     <!-- ── Care & Stock ────────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="section-label">Care & Stock</div>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Care Instructions</ion-label>
-        <ion-input [(ngModel)]="careInstructions" placeholder="e.g. Machine wash cold, do not bleach"></ion-input>
-      </ion-item>
+      <ion-input
+        label="Care Instructions"
+        label-placement="floating"
+        fill="outline"
+        [(ngModel)]="careInstructions"
+        placeholder="e.g. Machine wash cold, do not bleach"
+        class="field-input">
+      </ion-input>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Stock Available *</ion-label>
-        <ion-input type="number" [(ngModel)]="stockCount" placeholder="10"></ion-input>
-      </ion-item>
+      <ion-input
+        label="Stock Available *"
+        label-placement="floating"
+        fill="outline"
+        type="number"
+        [(ngModel)]="stockCount"
+        placeholder="10"
+        class="field-input">
+      </ion-input>
 
-      <ion-item class="field-item toggle-item">
+      <ion-item class="toggle-item">
         <ion-label>
           <h3>Visible to Customers</h3>
           <p>{{ isActive ? 'Item is live in your shop' : 'Item is hidden from customers' }}</p>

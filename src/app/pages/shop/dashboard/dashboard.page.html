@@ -67,44 +67,36 @@
     <div class="form-section">
       <div class="section-label">Shop Details</div>
 
-      <ion-item class="field-item">
-        <ion-label position="floating">Shop Name *</ion-label>
-        <ion-input [(ngModel)]="form.name" placeholder="e.g. Rahul Mattress House"></ion-input>
-      </ion-item>
-      <ion-item class="field-item">
-        <ion-label position="floating">Phone Number *</ion-label>
-        <ion-input type="tel" [(ngModel)]="form.phone" placeholder="10-digit number" maxlength="10"></ion-input>
-      </ion-item>
-      <ion-item class="field-item">
-        <ion-label position="floating">Address *</ion-label>
-        <ion-input [(ngModel)]="form.address" placeholder="Street / Area"></ion-input>
-      </ion-item>
-      <ion-item class="field-item">
-        <ion-label position="floating">City *</ion-label>
-        <ion-input [(ngModel)]="form.city" placeholder="City"></ion-input>
-      </ion-item>
-      <ion-item class="field-item">
-        <ion-label position="floating">State *</ion-label>
-        <ion-input [(ngModel)]="form.state" placeholder="State"></ion-input>
-      </ion-item>
-      <ion-item class="field-item">
-        <ion-label position="floating">Pincode *</ion-label>
-        <ion-input type="tel" [(ngModel)]="form.pincode" placeholder="6-digit" maxlength="6"></ion-input>
-      </ion-item>
+      <ion-input label="Shop Name *" label-placement="floating" fill="outline"
+        [(ngModel)]="form.name" placeholder="e.g. Rahul Mattress House" class="setup-field">
+      </ion-input>
+      <ion-input label="Phone Number *" label-placement="floating" fill="outline"
+        type="tel" [(ngModel)]="form.phone" placeholder="10-digit number" maxlength="10" class="setup-field">
+      </ion-input>
+      <ion-input label="Address *" label-placement="floating" fill="outline"
+        [(ngModel)]="form.address" placeholder="Street / Area" class="setup-field">
+      </ion-input>
+      <ion-input label="City *" label-placement="floating" fill="outline"
+        [(ngModel)]="form.city" placeholder="City" class="setup-field">
+      </ion-input>
+      <ion-input label="State *" label-placement="floating" fill="outline"
+        [(ngModel)]="form.state" placeholder="State" class="setup-field">
+      </ion-input>
+      <ion-input label="Pincode *" label-placement="floating" fill="outline"
+        type="tel" [(ngModel)]="form.pincode" placeholder="6-digit" maxlength="6" class="setup-field">
+      </ion-input>
     </div>
 
     <!-- Price Range -->
     <div class="form-section">
       <div class="section-label">Price Range (₹)</div>
       <div class="price-row">
-        <ion-item class="field-item half">
-          <ion-label position="floating">Min Price</ion-label>
-          <ion-input type="number" [(ngModel)]="form.minPrice" placeholder="3500"></ion-input>
-        </ion-item>
-        <ion-item class="field-item half">
-          <ion-label position="floating">Max Price</ion-label>
-          <ion-input type="number" [(ngModel)]="form.maxPrice" placeholder="15000"></ion-input>
-        </ion-item>
+        <ion-input label="Min Price" label-placement="floating" fill="outline"
+          type="number" [(ngModel)]="form.minPrice" placeholder="3500" class="setup-field">
+        </ion-input>
+        <ion-input label="Max Price" label-placement="floating" fill="outline"
+          type="number" [(ngModel)]="form.maxPrice" placeholder="15000" class="setup-field">
+        </ion-input>
       </div>
     </div>
 
