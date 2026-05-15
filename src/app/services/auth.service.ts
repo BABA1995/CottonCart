@@ -34,8 +34,13 @@ export class AuthService {
    * phoneE164 must be in E.164 format e.g. +919876543210
    */
   async sendOtp(phoneE164: string, containerId = 'recaptcha-container'): Promise<void> {
-    // Always recreate verifier to avoid stale state
+    // Clear previous verifier and its rendered widget
     try { this.recaptchaVerifier?.clear(); } catch { /* ignore */ }
+    this.recaptchaVerifier = null;
+
+    // Wipe the container's DOM so reCAPTCHA can re-render cleanly
+    const el = document.getElementById(containerId);
+    if (el) el.innerHTML = '';
 
     this.recaptchaVerifier = new RecaptchaVerifier(this.auth, containerId, {
       size: 'invisible',
