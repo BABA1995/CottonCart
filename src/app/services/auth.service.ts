@@ -1,9 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Auth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  ConfirmationResult,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
   user
 } from '@angular/fire/auth';
@@ -23,65 +22,60 @@ export class AuthService {
   /** Observable of the currently signed-in Firebase user */
   currentUser$ = user(this.auth);
 
-  private recaptchaVerifier:  RecaptchaVerifier  | null = null;
-  private confirmationResult: ConfirmationResult | null = null;
-
-  // ─── Phone OTP Auth ───────────────────────────────────────────────────────
+  // ─── Identifier helper ────────────────────────────────────────────────────
 
   /**
-   * Step 1 — Send OTP.
-   * Attaches an invisible reCAPTCHA to `containerId` and sends SMS to phoneE164.
-   * phoneE164 must be in E.164 format e.g. +919876543210
+   * Converts a phone number or email into a Firebase-compatible email.
+   * 10-digit phone  → 9876543210@cottoncart.app
+   * Email as-is     → returned unchanged
    */
-  async sendOtp(phoneE164: string, containerId = 'recaptcha-container'): Promise<void> {
-    // Clear previous verifier and its rendered widget
-    try { this.recaptchaVerifier?.clear(); } catch { /* ignore */ }
-    this.recaptchaVerifier = null;
-
-    // Wipe the container's DOM so reCAPTCHA can re-render cleanly
-    const el = document.getElementById(containerId);
-    if (el) el.innerHTML = '';
-
-    this.recaptchaVerifier = new RecaptchaVerifier(this.auth, containerId, {
-      size: 'invisible',
-      callback: () => { /* reCAPTCHA passed automatically */ }
-    });
-
-    this.confirmationResult = await signInWithPhoneNumber(
-      this.auth, phoneE164, this.recaptchaVerifier
-    );
-  }
-
-  /**
-   * Step 2 — Verify OTP.
-   * Confirms the code the user entered. Creates a Firestore user profile if new.
-   */
-  async verifyOtp(otp: string, role: 'customer' | 'shop'): Promise<UserModel> {
-    if (!this.confirmationResult) throw new Error('No OTP pending. Call sendOtp first.');
-    const credential = await this.confirmationResult.confirm(otp);
-    const uid   = credential.user.uid;
-    const phone = credential.user.phoneNumber ?? '';
-    return this.saveUserIfNew(uid, phone, role);
-  }
-
-  /** Creates user profile in Firestore on first login; returns existing profile otherwise. */
-  private async saveUserIfNew(
-    uid: string, phone: string, role: 'customer' | 'shop'
-  ): Promise<UserModel> {
-    const ref  = doc(this.firestore, 'users', uid);
-    const snap = await getDoc(ref);
-
-    if (snap.exists()) {
-      const profile = snap.data() as UserModel;
-      localStorage.setItem('selectedRole', profile.role);
-      return profile;
+  resolveEmail(input: string): string {
+    const digits = input.replace(/\D/g, '');
+    if (digits.length === 10) {
+      return `${digits}@cottoncart.app`;
     }
+    return input.trim().toLowerCase();
+  }
 
-    const profile: UserModel = {
-      uid, name: '', email: '', phone, role, createdAt: new Date()
-    };
-    await setDoc(ref, profile);
+  // ─── Signup ───────────────────────────────────────────────────────────────
+
+  /**
+   * Creates a new account.
+   * identifier = 10-digit phone OR email address
+   */
+  async signup(
+    identifier: string,
+    password:   string,
+    name:       string,
+    role:       'customer' | 'shop'
+  ): Promise<UserModel> {
+    const email  = this.resolveEmail(identifier);
+    const phone  = identifier.replace(/\D/g, '').length === 10
+                     ? identifier.replace(/\D/g, '') : '';
+
+    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+    const uid = credential.user.uid;
+
+    const profile: UserModel = { uid, name, email, phone, role, createdAt: new Date() };
+    await setDoc(doc(this.firestore, 'users', uid), profile);
     localStorage.setItem('selectedRole', role);
+    return profile;
+  }
+
+  // ─── Login ────────────────────────────────────────────────────────────────
+
+  /**
+   * Signs in an existing user.
+   * identifier = 10-digit phone OR email address
+   */
+  async login(identifier: string, password: string): Promise<UserModel> {
+    const email = this.resolveEmail(identifier);
+    const credential = await signInWithEmailAndPassword(this.auth, email, password);
+    const uid = credential.user.uid;
+
+    const snap = await getDoc(doc(this.firestore, 'users', uid));
+    const profile = snap.data() as UserModel;
+    localStorage.setItem('selectedRole', profile.role);
     return profile;
   }
 
@@ -93,7 +87,6 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    try { this.recaptchaVerifier?.clear(); } catch { /* ignore */ }
     await signOut(this.auth);
     localStorage.clear();
   }

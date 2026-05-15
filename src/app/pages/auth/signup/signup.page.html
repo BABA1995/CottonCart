@@ -1,108 +1,83 @@
-<ion-content class="signup-content">
-  <div class="signup-container">
+<ion-content class="otp-content">
+  <div class="otp-wrapper">
 
-    <!-- Header -->
-    <div class="signup-header">
-      <ion-icon name="bed-outline" class="logo-icon"></ion-icon>
+    <!-- Brand -->
+    <div class="brand">
+      <ion-icon name="bed-outline"></ion-icon>
       <h1>CottonCart</h1>
-      <p class="role-badge">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</p>
+      <span class="role-pill">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</span>
     </div>
 
-    <!-- Form -->
-    <div class="signup-form">
+    <!-- Signup Card -->
+    <div class="auth-card">
       <h2>Create Account</h2>
-      <p class="subtitle">Join CottonCart today</p>
+      <p class="sub">Your phone number will be your login ID</p>
 
       <!-- Full Name -->
-      <ion-item class="form-item">
-        <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+      <div class="input-group">
+        <ion-icon name="person-outline" class="input-icon"></ion-icon>
         <ion-input
+          [(ngModel)]="name"
+          placeholder="Full Name"
           type="text"
-          label="Full Name"
-          labelPlacement="floating"
-          placeholder="Your full name"
-          [(ngModel)]="name">
+          class="flex-input">
         </ion-input>
-      </ion-item>
+      </div>
 
-      <!-- Phone -->
-      <ion-item class="form-item">
-        <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+      <!-- Phone Number -->
+      <div class="input-group">
+        <span class="input-prefix">🇮🇳 +91</span>
         <ion-input
-          type="tel"
-          label="Phone Number"
-          labelPlacement="floating"
-          placeholder="10-digit mobile number"
           [(ngModel)]="phone"
-          maxlength="10">
+          placeholder="10-digit mobile number"
+          type="tel"
+          maxlength="10"
+          inputmode="numeric"
+          class="flex-input">
         </ion-input>
-      </ion-item>
-
-      <!-- Email -->
-      <ion-item class="form-item">
-        <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
-        <ion-input
-          type="email"
-          label="Email Address"
-          labelPlacement="floating"
-          placeholder="you@example.com"
-          [(ngModel)]="email"
-          autocomplete="email">
-        </ion-input>
-      </ion-item>
+      </div>
 
       <!-- Password -->
-      <ion-item class="form-item">
-        <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
+      <div class="input-group">
+        <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
         <ion-input
+          [(ngModel)]="password"
           [type]="showPassword ? 'text' : 'password'"
-          label="Password"
-          labelPlacement="floating"
-          placeholder="Min. 6 characters"
-          [(ngModel)]="password">
+          placeholder="Password (min. 6 characters)"
+          class="flex-input">
         </ion-input>
         <ion-icon
           [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-          slot="end"
-          color="medium"
-          (click)="togglePassword()"
-          style="cursor:pointer">
+          class="input-icon-end"
+          (click)="showPassword = !showPassword">
         </ion-icon>
-      </ion-item>
+      </div>
 
       <!-- Confirm Password -->
-      <ion-item class="form-item">
-        <ion-icon name="shield-checkmark-outline" slot="start" color="medium"></ion-icon>
+      <div class="input-group">
+        <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
         <ion-input
+          [(ngModel)]="confirmPassword"
           [type]="showPassword ? 'text' : 'password'"
-          label="Confirm Password"
-          labelPlacement="floating"
-          placeholder="Re-enter password"
-          [(ngModel)]="confirmPassword">
+          placeholder="Confirm password"
+          class="flex-input"
+          (keyup.enter)="signup()">
         </ion-input>
-      </ion-item>
+      </div>
 
-      <!-- Sign Up Button -->
-      <ion-button expand="block" class="btn-signup" (click)="signup()" [disabled]="loading">
+      <!-- Signup button -->
+      <ion-button expand="block" class="primary-btn" (click)="signup()" [disabled]="loading">
         <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
         <span *ngIf="!loading">Create Account</span>
       </ion-button>
 
-      <!-- Divider -->
-      <div class="divider"><span>OR</span></div>
-
-      <!-- Already have account -->
-      <ion-button expand="block" fill="outline" class="btn-login" (click)="goToLogin()">
-        Already have an account? Login
-      </ion-button>
+      <p class="switch-link">
+        Already have an account?
+        <span (click)="goToLogin()">Login</span>
+      </p>
     </div>
 
-    <!-- Back row -->
-    <div class="back-row">
-      <span (click)="goBack()">
-        <ion-icon name="arrow-back-outline"></ion-icon> Change Role
-      </span>
-    </div>
+    <p class="back-link" (click)="goBack()">← Back to role selection</p>
 
   </div>
 </ion-content>

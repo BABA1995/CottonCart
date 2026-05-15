@@ -7,8 +7,8 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  bedOutline, phonePortraitOutline, keypadOutline,
-  arrowBackOutline, checkmarkCircleOutline, refreshOutline
+  bedOutline, phonePortraitOutline, lockClosedOutline,
+  eyeOutline, eyeOffOutline, arrowBackOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
 
@@ -24,11 +24,11 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class LoginPage {
 
-  step: 1 | 2 = 1;      // 1 = enter phone  |  2 = enter OTP
-  phone   = '';
-  otp     = '';
-  loading = false;
-  role    = (localStorage.getItem('selectedRole') || 'customer') as 'customer' | 'shop';
+  identifier   = '';   // phone number or email
+  password     = '';
+  showPassword = false;
+  loading      = false;
+  role         = (localStorage.getItem('selectedRole') || 'customer') as 'customer' | 'shop';
 
   constructor(
     private authService: AuthService,
@@ -36,66 +36,42 @@ export class LoginPage {
     private toastCtrl:   ToastController
   ) {
     addIcons({
-      bedOutline, phonePortraitOutline, keypadOutline,
-      arrowBackOutline, checkmarkCircleOutline, refreshOutline
+      bedOutline, phonePortraitOutline, lockClosedOutline,
+      eyeOutline, eyeOffOutline, arrowBackOutline
     });
   }
 
-  // ─── Step 1: Send OTP ────────────────────────────────────────────────────
-
-  async sendOtp() {
-    const digits = this.phone.replace(/\D/g, '');
-    if (digits.length !== 10) {
-      return this.showToast('Enter a valid 10-digit mobile number', 'warning');
-    }
-
-    this.loading = true;
-    try {
-      await this.authService.sendOtp(`+91${digits}`);
-      this.step = 2;
-      this.showToast('OTP sent ✅', 'success');
-    } catch (e: any) {
-      console.error(e);
-      this.showToast(this.errorMessage(e.code), 'danger');
-    } finally {
-      this.loading = false;
-    }
+  /** True when user typed 10 digits — shows +91 prefix hint */
+  get isPhone(): boolean {
+    return /^\d{10}$/.test(this.identifier.replace(/\D/g, '')) &&
+           this.identifier.replace(/\D/g, '').length === 10;
   }
 
-  // ─── Step 2: Verify OTP ──────────────────────────────────────────────────
-
-  async verifyOtp() {
-    const code = this.otp.replace(/\D/g, '');
-    if (code.length !== 6) {
-      return this.showToast('Enter the 6-digit OTP', 'warning');
+  async login() {
+    if (!this.identifier.trim()) {
+      return this.showToast('Enter your phone number or email', 'warning');
+    }
+    if (!this.password) {
+      return this.showToast('Enter your password', 'warning');
     }
 
     this.loading = true;
     try {
-      const profile = await this.authService.verifyOtp(code, this.role);
+      const profile = await this.authService.login(this.identifier, this.password);
       if (profile.role === 'shop') {
         this.navCtrl.navigateRoot('/shop/dashboard');
       } else {
         this.navCtrl.navigateRoot('/customer');
       }
     } catch (e: any) {
-      console.error(e);
       this.showToast(this.errorMessage(e.code), 'danger');
     } finally {
       this.loading = false;
     }
   }
 
-  // ─── Navigation ──────────────────────────────────────────────────────────
-
-  changeNumber() {
-    this.step  = 1;
-    this.otp   = '';
-  }
-
-  goBack() { this.navCtrl.navigateBack('/role-select'); }
-
-  // ─── Helpers ─────────────────────────────────────────────────────────────
+  goToSignup() { this.navCtrl.navigateForward('/signup'); }
+  goBack()     { this.navCtrl.navigateBack('/role-select'); }
 
   async showToast(message: string, color = 'danger') {
     const t = await this.toastCtrl.create({
@@ -106,12 +82,12 @@ export class LoginPage {
 
   errorMessage(code: string): string {
     const map: Record<string, string> = {
-      'auth/invalid-phone-number'      : 'Invalid phone number. Use a 10-digit Indian mobile number.',
-      'auth/too-many-requests'         : 'Too many attempts. Please try again after some time.',
-      'auth/invalid-verification-code' : 'Wrong OTP. Please check and try again.',
-      'auth/code-expired'              : 'OTP expired. Tap "Change Number" to request a new one.',
-      'auth/quota-exceeded'            : 'SMS quota exceeded. Try again later.',
+      'auth/user-not-found'     : 'No account found. Please sign up first.',
+      'auth/wrong-password'     : 'Incorrect password. Try again.',
+      'auth/invalid-credential' : 'Wrong phone number / email or password.',
+      'auth/too-many-requests'  : 'Too many attempts. Try again later.',
+      'auth/invalid-email'      : 'Invalid phone number or email address.',
     };
-    return map[code] ?? 'Something went wrong. Please try again.';
+    return map[code] ?? 'Login failed. Please try again.';
   }
 }

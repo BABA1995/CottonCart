@@ -1,88 +1,63 @@
 <ion-content class="otp-content">
-
-  <!-- Invisible reCAPTCHA — Firebase needs this div in the DOM -->
-  <div id="recaptcha-container"></div>
-
   <div class="otp-wrapper">
 
-    <!-- Logo -->
+    <!-- Brand -->
     <div class="brand">
       <ion-icon name="bed-outline"></ion-icon>
       <h1>CottonCart</h1>
       <span class="role-pill">{{ role === 'shop' ? '🏪 Shop Owner' : '👤 Customer' }}</span>
     </div>
 
-    <!-- ══ STEP 1: Phone Number ══════════════════════════════════════ -->
-    <div class="auth-card" *ngIf="step === 1">
-      <h2>Enter Mobile Number</h2>
-      <p class="sub">We'll send a one-time OTP to verify your number</p>
+    <!-- Login Card -->
+    <div class="auth-card">
+      <h2>Welcome Back</h2>
+      <p class="sub">Sign in with your phone number or email</p>
 
-      <div class="phone-row">
-        <div class="country-chip">🇮🇳 +91</div>
+      <!-- Phone / Email input -->
+      <div class="input-group">
+        <div class="input-prefix" *ngIf="isPhone">🇮🇳 +91</div>
+        <ion-icon name="phone-portrait-outline" *ngIf="!isPhone" class="input-icon"></ion-icon>
         <ion-input
-          type="tel"
-          [(ngModel)]="phone"
-          placeholder="10-digit number"
-          maxlength="10"
-          inputmode="numeric"
-          class="phone-input"
-          (keyup.enter)="sendOtp()">
+          [(ngModel)]="identifier"
+          [placeholder]="'Phone number or email'"
+          [type]="isPhone ? 'tel' : 'text'"
+          inputmode="text"
+          class="flex-input"
+          (keyup.enter)="login()">
         </ion-input>
       </div>
 
-      <ion-button
-        expand="block"
-        class="primary-btn"
-        (click)="sendOtp()"
-        [disabled]="loading">
-        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
-        <ng-container *ngIf="!loading">
-          <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
-          Send OTP
-        </ng-container>
-      </ion-button>
-
-      <p class="back-link" (click)="goBack()">← Back to role selection</p>
-    </div>
-
-    <!-- ══ STEP 2: Enter OTP ═════════════════════════════════════════ -->
-    <div class="auth-card" *ngIf="step === 2">
-
-      <div class="sent-badge">
-        <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-        <span>OTP sent to <strong>+91 {{ phone }}</strong></span>
+      <!-- Password input -->
+      <div class="input-group">
+        <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+        <ion-input
+          [(ngModel)]="password"
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          class="flex-input"
+          (keyup.enter)="login()">
+        </ion-input>
+        <ion-icon
+          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+          class="input-icon-end"
+          (click)="showPassword = !showPassword">
+        </ion-icon>
       </div>
 
-      <h2>Enter OTP</h2>
-      <p class="sub">Enter the 6-digit code sent via SMS</p>
-
-      <ion-input
-        type="tel"
-        [(ngModel)]="otp"
-        placeholder="• • • • • •"
-        maxlength="6"
-        inputmode="numeric"
-        class="otp-input"
-        (keyup.enter)="verifyOtp()">
-      </ion-input>
-
-      <ion-button
-        expand="block"
-        class="primary-btn"
-        (click)="verifyOtp()"
-        [disabled]="loading">
+      <!-- Login button -->
+      <ion-button expand="block" class="primary-btn" (click)="login()" [disabled]="loading">
         <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
-        <ng-container *ngIf="!loading">
-          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-          Verify &amp; Login
-        </ng-container>
+        <span *ngIf="!loading">Login</span>
       </ion-button>
 
-      <p class="change-number" (click)="changeNumber()">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        Change number / Resend OTP
+      <!-- Signup link -->
+      <p class="switch-link">
+        New to CottonCart?
+        <span (click)="goToSignup()">Create account</span>
       </p>
     </div>
+
+    <p class="back-link" (click)="goBack()">← Back to role selection</p>
 
   </div>
 </ion-content>

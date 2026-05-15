@@ -8,6 +8,68 @@ ion-content {
   --background: #FAFAFA;
 }
 
+/* ── Auth pages shared styles (login + signup) ── */
+.otp-content { --background: #F0F4F0; }
+
+.otp-wrapper {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 20px; gap: 24px;
+}
+
+.brand {
+  text-align: center;
+  ion-icon { font-size: 56px; color: var(--ion-color-primary); }
+  h1 { font-size: 30px; font-weight: 800; color: #1a1a1a; margin: 6px 0 10px; }
+  .role-pill {
+    display: inline-block; background: white;
+    border: 1.5px solid var(--ion-color-primary-tint);
+    color: var(--ion-color-primary-shade);
+    font-size: 13px; font-weight: 600; border-radius: 20px; padding: 4px 16px;
+  }
+}
+
+.auth-card {
+  width: 100%; max-width: 420px;
+  background: white; border-radius: 20px; padding: 28px 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  h2 { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px; }
+  .sub { font-size: 13px; color: #757575; margin: 0 0 22px; line-height: 1.5; }
+}
+
+.input-group {
+  display: flex; align-items: center; gap: 10px;
+  background: #F5F5F5; border-radius: 12px; padding: 6px 14px;
+  margin-bottom: 14px; border: 1.5px solid #E0E0E0; min-height: 52px;
+  &:focus-within { border-color: var(--ion-color-primary); background: #fff; }
+  .input-prefix { font-size: 14px; font-weight: 600; color: #333; white-space: nowrap; flex-shrink: 0; }
+  .input-icon { font-size: 20px; color: #9E9E9E; flex-shrink: 0; }
+  .input-icon-end { font-size: 20px; color: #9E9E9E; flex-shrink: 0; cursor: pointer; }
+}
+
+.flex-input {
+  --background: transparent; --padding-start: 0; --padding-end: 0;
+  font-size: 15px; flex: 1;
+}
+
+.primary-btn {
+  --background: var(--ion-color-primary); --border-radius: 12px;
+  --box-shadow: 0 4px 14px rgba(46,125,50,.3);
+  height: 52px; font-size: 16px; font-weight: 700; margin-bottom: 16px;
+}
+
+.switch-link {
+  text-align: center; font-size: 13px; color: #757575; margin: 4px 0 0;
+  span { color: var(--ion-color-primary); font-weight: 700; cursor: pointer; }
+}
+
+.back-link {
+  text-align: center; font-size: 13px; color: var(--ion-color-medium);
+  cursor: pointer; margin: 0;
+  &:hover { color: var(--ion-color-primary); }
+}
+
 /* Card styles */
 .cc-card {
   border-radius: 12px;

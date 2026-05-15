@@ -1,156 +1,16 @@
-.otp-content { --background: #F0F4F0; }
+// All shared auth styles moved to global.scss
+// Local overrides only:
 
-.otp-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 20px;
-  gap: 24px;
-}
-
-// ── Brand ──────────────────────────────────────────────────────────────────
-.brand {
-  text-align: center;
-
-  ion-icon {
-    font-size: 56px;
-    color: var(--ion-color-primary);
-  }
-
-  h1 {
-    font-size: 30px;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin: 6px 0 10px;
-  }
-
-  .role-pill {
-    display: inline-block;
-    background: white;
-    border: 1.5px solid var(--ion-color-primary-tint);
-    color: var(--ion-color-primary-shade);
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 20px;
-    padding: 4px 16px;
-  }
-}
-
-// ── Card ───────────────────────────────────────────────────────────────────
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: white;
-  border-radius: 20px;
-  padding: 28px 24px;
-  box-shadow: 0 4px 24px rgba(0,0,0,.08);
-
-  h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0 0 4px;
-  }
-
-  .sub {
-    font-size: 13px;
-    color: #757575;
-    margin: 0 0 22px;
-    line-height: 1.5;
-  }
-}
-
-// ── Sent badge ────────────────────────────────────────────────────────────
 .sent-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #E8F5E9;
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 20px;
-
+  display: flex; align-items: center; gap: 8px;
+  background: #E8F5E9; border-radius: 10px; padding: 10px 14px; margin-bottom: 20px;
   ion-icon { font-size: 20px; flex-shrink: 0; }
   span { font-size: 13px; color: #2e7d32; line-height: 1.4; }
   strong { font-weight: 700; }
 }
 
-// ── Phone row ─────────────────────────────────────────────────────────────
-.phone-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #F5F5F5;
-  border-radius: 12px;
-  padding: 4px 4px 4px 14px;
-  margin-bottom: 18px;
-  border: 1.5px solid #E0E0E0;
-
-  &:focus-within { border-color: var(--ion-color-primary); }
-
-  .country-chip {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-}
-
-.phone-input {
-  --background: transparent;
-  --padding-start: 0;
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: .5px;
-  flex: 1;
-}
-
-// ── OTP input ─────────────────────────────────────────────────────────────
-.otp-input {
-  --background: #F5F5F5;
-  --border-radius: 12px;
-  --padding-start: 20px;
-  border: 1.5px solid #E0E0E0;
-  border-radius: 12px;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: 10px;
-  text-align: center;
-  margin-bottom: 18px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-
-  &:focus-within { border-color: var(--ion-color-primary); }
-}
-
-// ── Buttons ───────────────────────────────────────────────────────────────
-.primary-btn {
-  --background: var(--ion-color-primary);
-  --border-radius: 12px;
-  --box-shadow: 0 4px 14px rgba(46,125,50,.3);
-  height: 52px;
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-
-// ── Links ─────────────────────────────────────────────────────────────────
-.back-link, .change-number {
-  text-align: center;
-  font-size: 13px;
-  color: var(--ion-color-medium);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin: 0;
-
+.change-number {
+  text-align: center; font-size: 13px; color: var(--ion-color-medium);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
   ion-icon { font-size: 14px; }
-
-  &:hover { color: var(--ion-color-primary); }
 }
