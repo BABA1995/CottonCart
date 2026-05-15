@@ -86,6 +86,11 @@ export class AuthService {
     return (snap.data() as UserModel)?.role ?? 'customer';
   }
 
+  async getUserProfile(uid: string): Promise<UserModel | null> {
+    const snap = await getDoc(doc(this.firestore, 'users', uid));
+    return snap.exists() ? (snap.data() as UserModel) : null;
+  }
+
   async logout(): Promise<void> {
     await signOut(this.auth);
     localStorage.clear();

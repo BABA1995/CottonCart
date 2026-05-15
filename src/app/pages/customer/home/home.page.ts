@@ -93,9 +93,10 @@ export class HomePage implements OnInit, OnDestroy {
   // ─── User ─────────────────────────────────────────────────────────────────
 
   loadUserName() {
-    this.userSub = this.authService.currentUser$.subscribe(u => {
+    this.userSub = this.authService.currentUser$.subscribe(async u => {
       if (u) {
-        this.userName = u.displayName || u.email?.split('@')[0] || 'User';
+        const profile = await this.authService.getUserProfile(u.uid);
+        this.userName = profile?.name?.trim() || u.displayName || 'there';
       }
     });
   }

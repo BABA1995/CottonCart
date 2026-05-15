@@ -103,10 +103,11 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnInit() {
-    this.userSub = this.authService.currentUser$.subscribe(u => {
+    this.userSub = this.authService.currentUser$.subscribe(async u => {
       if (u) {
         this.currentUid = u.uid;
-        this.ownerName  = u.displayName || u.email?.split('@')[0] || 'Owner';
+        const profile   = await this.authService.getUserProfile(u.uid);
+        this.ownerName  = profile?.name?.trim() || u.displayName || 'Owner';
         this.loadShop(u.uid);
       }
     });
