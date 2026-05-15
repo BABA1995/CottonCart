@@ -18,41 +18,73 @@
 
     <!-- ── Photos ──────────────────────────────────────────────────────── -->
     <div class="form-section">
-      <div class="section-label">Photos (paste image URLs — up to 3)</div>
-      <p class="hint" style="margin-bottom:10px">
-        Upload your photo to <strong>imgbb.com</strong> (free) and paste the link here,
-        or use any direct image URL (Google Photos share link, etc.)
-      </p>
+      <div class="section-label">Photos (up to 3)</div>
 
-      <!-- URL inputs with live previews -->
-      <div class="url-photo-row" *ngFor="let n of [1,2,3]">
-        <div class="url-preview">
-          <img *ngIf="n===1 && imageUrl1.trim()" [src]="imageUrl1" alt="Preview 1"
-               (error)="imageUrl1=''" />
-          <img *ngIf="n===2 && imageUrl2.trim()" [src]="imageUrl2" alt="Preview 2"
-               (error)="imageUrl2=''" />
-          <img *ngIf="n===3 && imageUrl3.trim()" [src]="imageUrl3" alt="Preview 3"
-               (error)="imageUrl3=''" />
-          <ion-icon name="image-outline"
-            *ngIf="(n===1 && !imageUrl1.trim()) || (n===2 && !imageUrl2.trim()) || (n===3 && !imageUrl3.trim())">
-          </ion-icon>
+      <!-- Hidden file inputs for each slot -->
+      <input type="file" accept="image/*" id="photoInput0" style="display:none"
+             (change)="pickPhoto(0, $event)" />
+      <input type="file" accept="image/*" id="photoInput1" style="display:none"
+             (change)="pickPhoto(1, $event)" />
+      <input type="file" accept="image/*" id="photoInput2" style="display:none"
+             (change)="pickPhoto(2, $event)" />
+
+      <div class="photo-slots">
+        <!-- Slot 0 -->
+        <div class="photo-slot">
+          <div class="slot-preview" [class.has-photo]="photos[0]">
+            <img *ngIf="photos[0]" [src]="photos[0]" alt="Photo 1" />
+            <div class="slot-overlay" *ngIf="uploadingSlot === 0">
+              <ion-spinner name="crescent" color="light"></ion-spinner>
+            </div>
+            <ion-icon name="camera-outline" *ngIf="!photos[0] && uploadingSlot !== 0"></ion-icon>
+          </div>
+          <div class="slot-actions">
+            <label for="photoInput0" class="slot-pick" [class.disabled]="uploadingSlot !== -1">
+              {{ photos[0] ? 'Change' : 'Add' }}
+            </label>
+            <button *ngIf="photos[0]" class="slot-remove" (click)="removePhoto(0)">✕</button>
+          </div>
+          <span class="slot-label">Main</span>
         </div>
-        <ion-item class="field-item url-field">
-          <ion-label position="floating">Photo {{ n }} URL {{ n === 1 ? '(main)' : '(optional)' }}</ion-label>
-          <ion-input
-            *ngIf="n===1" [(ngModel)]="imageUrl1"
-            placeholder="https://i.ibb.co/…" type="url">
-          </ion-input>
-          <ion-input
-            *ngIf="n===2" [(ngModel)]="imageUrl2"
-            placeholder="https://i.ibb.co/…" type="url">
-          </ion-input>
-          <ion-input
-            *ngIf="n===3" [(ngModel)]="imageUrl3"
-            placeholder="https://i.ibb.co/…" type="url">
-          </ion-input>
-        </ion-item>
+
+        <!-- Slot 1 -->
+        <div class="photo-slot">
+          <div class="slot-preview" [class.has-photo]="photos[1]">
+            <img *ngIf="photos[1]" [src]="photos[1]" alt="Photo 2" />
+            <div class="slot-overlay" *ngIf="uploadingSlot === 1">
+              <ion-spinner name="crescent" color="light"></ion-spinner>
+            </div>
+            <ion-icon name="camera-outline" *ngIf="!photos[1] && uploadingSlot !== 1"></ion-icon>
+          </div>
+          <div class="slot-actions">
+            <label for="photoInput1" class="slot-pick" [class.disabled]="uploadingSlot !== -1">
+              {{ photos[1] ? 'Change' : 'Add' }}
+            </label>
+            <button *ngIf="photos[1]" class="slot-remove" (click)="removePhoto(1)">✕</button>
+          </div>
+          <span class="slot-label">Photo 2</span>
+        </div>
+
+        <!-- Slot 2 -->
+        <div class="photo-slot">
+          <div class="slot-preview" [class.has-photo]="photos[2]">
+            <img *ngIf="photos[2]" [src]="photos[2]" alt="Photo 3" />
+            <div class="slot-overlay" *ngIf="uploadingSlot === 2">
+              <ion-spinner name="crescent" color="light"></ion-spinner>
+            </div>
+            <ion-icon name="camera-outline" *ngIf="!photos[2] && uploadingSlot !== 2"></ion-icon>
+          </div>
+          <div class="slot-actions">
+            <label for="photoInput2" class="slot-pick" [class.disabled]="uploadingSlot !== -1">
+              {{ photos[2] ? 'Change' : 'Add' }}
+            </label>
+            <button *ngIf="photos[2]" class="slot-remove" (click)="removePhoto(2)">✕</button>
+          </div>
+          <span class="slot-label">Photo 3</span>
+        </div>
       </div>
+
+      <p class="hint">Tap a slot to pick from gallery or take a photo with your camera.</p>
     </div>
 
     <!-- ── Basic Info ──────────────────────────────────────────────────── -->

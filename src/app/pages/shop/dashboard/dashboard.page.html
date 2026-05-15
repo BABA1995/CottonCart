@@ -33,26 +33,34 @@
     <div class="form-section">
       <div class="section-label">Shop Photo</div>
 
-      <!-- Preview -->
-      <div class="photo-preview-row">
+      <!-- Hidden file input — OS shows Camera / Gallery chooser -->
+      <input type="file" accept="image/*" id="shopPhotoInput"
+             style="display:none" (change)="pickShopPhoto($event)" />
+
+      <!-- Preview + action -->
+      <div class="photo-upload-row">
         <div class="photo-preview">
-          <img *ngIf="form.imageUrl.trim()" [src]="form.imageUrl" alt="Shop photo"
-               (error)="form.imageUrl = ''" />
-          <div class="photo-initials" *ngIf="!form.imageUrl.trim()">
+          <img *ngIf="form.imageUrl" [src]="form.imageUrl" alt="Shop photo" />
+          <div class="photo-initials" *ngIf="!form.imageUrl">
             {{ form.name ? getInitials(form.name) : '🏪' }}
           </div>
+          <!-- uploading overlay -->
+          <div class="photo-overlay" *ngIf="photoUploading">
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+          </div>
         </div>
-        <div class="photo-instructions">
-          <p>Upload your shop photo to <strong>imgbb.com</strong> (free) and paste the link below.</p>
-          <p>This photo shows on your shop card and detail page for customers.</p>
+
+        <div class="photo-actions">
+          <p class="photo-hint">This photo is shown to customers on the shop card and shop page.</p>
+          <label for="shopPhotoInput" class="photo-pick-btn" [class.disabled]="photoUploading">
+            <ion-icon name="camera-outline"></ion-icon>
+            {{ form.imageUrl ? 'Change Photo' : 'Add Photo' }}
+          </label>
+          <button *ngIf="form.imageUrl" class="photo-remove-btn" (click)="form.imageUrl = ''">
+            Remove
+          </button>
         </div>
       </div>
-
-      <ion-item class="field-item">
-        <ion-label position="floating">Shop Photo URL (optional)</ion-label>
-        <ion-input [(ngModel)]="form.imageUrl" type="url"
-          placeholder="https://i.ibb.co/…"></ion-input>
-      </ion-item>
     </div>
 
     <!-- Setup Form -->

@@ -14,12 +14,13 @@ import {
   timeOutline, bicycleOutline, logOutOutline, listOutline,
   locationOutline, locateOutline, callOutline, pricetagOutline, addCircleOutline,
   personOutline, cubeOutline, bedOutline, sparklesOutline,
-  leafOutline, cogOutline, flowerOutline
+  leafOutline, cogOutline, flowerOutline, cameraOutline
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ShopService } from '../../../services/shop.service';
 import { OrderService } from '../../../services/order.service';
+import { CloudinaryService } from '../../../services/cloudinary.service';
 import { ShopModel } from '../../../models/shop.model';
 import { OrderModel, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '../../../models/order.model';
 
@@ -49,6 +50,9 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
   private locationMap:    L.Map | null    = null;
   private locationMarker: L.Marker | null = null;
   private mapInitialised  = false;
+
+  // ─── Photo upload ─────────────────────────────────────────────────────────
+  photoUploading = false;
 
   // ─── Setup form ───────────────────────────────────────────────────────────
   form = {
@@ -85,6 +89,7 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
     private authService: AuthService,
     private shopService: ShopService,
     private orderService: OrderService,
+    private cloudinary: CloudinaryService,
     private navCtrl: NavController,
     private toastCtrl: ToastController
   ) {
@@ -93,7 +98,7 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
       timeOutline, bicycleOutline, logOutOutline, listOutline,
       locationOutline, locateOutline, callOutline, pricetagOutline, addCircleOutline,
       personOutline, cubeOutline, bedOutline, sparklesOutline,
-      leafOutline, cogOutline, flowerOutline
+      leafOutline, cogOutline, flowerOutline, cameraOutline
     });
   }
 
@@ -157,6 +162,24 @@ export class DashboardPage implements OnInit, OnDestroy, AfterViewChecked {
 
   getInitials(name: string): string {
     return (name || '??').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  async pickShopPhoto(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+    input.value = ''; // allow re-picking same file
+
+    this.photoUploading = true;
+    try {
+      this.form.imageUrl = await this.cloudinary.uploadImage(file);
+      this.showToast('Photo uploaded ✅', 'success');
+    } catch (e: any) {
+      console.error(e);
+      this.showToast('Upload failed. Check your internet and try again.', 'danger');
+    } finally {
+      this.photoUploading = false;
+    }
   }
 
   // ─── Location Picker Map ──────────────────────────────────────────────────

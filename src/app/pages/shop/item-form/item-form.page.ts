@@ -10,10 +10,12 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  addOutline, checkmarkOutline, imageOutline, trashOutline, linkOutline
+  addOutline, checkmarkOutline, imageOutline, trashOutline,
+  cameraOutline, closeCircleOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
 import { ItemService } from '../../../services/item.service';
+import { CloudinaryService } from '../../../services/cloudinary.service';
 import {
   ShopItem, ITEM_CATEGORIES, CATEGORY_MAP, COTTON_OPTIONS, FABRIC_TYPES
 } from '../../../models/shop-item.model';
@@ -38,10 +40,9 @@ export class ItemFormPage implements OnInit {
   shopId     = '';
   saving     = false;
 
-  // ── Photo URLs (up to 3 — paste from Google Photos / imgbb / WhatsApp Web)
-  imageUrl1 = '';
-  imageUrl2 = '';
-  imageUrl3 = '';
+  // ── Photos (up to 3 Cloudinary URLs) ────────────────────────────────────
+  photos: string[]     = ['', '', ''];   // index 0‒2
+  uploadingSlot        = -1;             // -1 = none uploading
 
   // ── Form fields ───────────────────────────────────────────────────────────
   name             = '';
@@ -67,26 +68,27 @@ export class ItemFormPage implements OnInit {
   readonly categoryMap = CATEGORY_MAP;
   readonly cottonOpts  = COTTON_OPTIONS;
   readonly fabricTypes = FABRIC_TYPES;
+  readonly slots       = [0, 1, 2] as const;
 
   get showFilling(): boolean {
     return this.categoryMap[this.category]?.hasFilling ?? this.hasFilling;
   }
 
-  /** Collect non-empty URLs into array for storage */
+  /** Non-empty URLs to store in Firestore */
   get imageUrls(): string[] {
-    return [this.imageUrl1, this.imageUrl2, this.imageUrl3]
-      .map(u => u.trim())
-      .filter(u => u.length > 0);
+    return this.photos.filter(u => u.length > 0);
   }
 
   constructor(
     private authService: AuthService,
     private itemService: ItemService,
+    private cloudinary:  CloudinaryService,
     private route:       ActivatedRoute,
     private navCtrl:     NavController,
     private toastCtrl:   ToastController
   ) {
-    addIcons({ addOutline, checkmarkOutline, imageOutline, trashOutline, linkOutline });
+    addIcons({ addOutline, checkmarkOutline, imageOutline, trashOutline,
+               cameraOutline, closeCircleOutline });
   }
 
   ngOnInit() {
@@ -106,39 +108,61 @@ export class ItemFormPage implements OnInit {
     const item = await this.itemService.getItemById(this.shopId, id);
     if (!item) return;
 
-    const imgs        = item.images ?? [];
-    this.imageUrl1    = imgs[0] ?? '';
-    this.imageUrl2    = imgs[1] ?? '';
-    this.imageUrl3    = imgs[2] ?? '';
+    const imgs = item.images ?? [];
+    this.photos = [imgs[0] ?? '', imgs[1] ?? '', imgs[2] ?? ''];
 
-    this.name            = item.name;
-    this.category        = item.category;
-    this.description     = item.description;
-    this.price           = item.price;
-    this.mrp             = item.mrp ?? '';
-    this.sizeLabel       = item.sizeLabel;
-    this.fabricType      = item.fabricType;
-    this.fabricGsm       = item.fabricGsm ?? '';
-    this.threadCount     = item.threadCount ?? '';
-    this.fabricMeters    = item.fabricMetersUsed ?? '';
-    this.hasFilling      = item.hasFilling;
-    this.cottonType      = item.cottonType ?? '';
-    this.fillWeight      = item.fillWeightKg ?? '';
-    this.color           = item.color ?? '';
-    this.careInstructions= item.careInstructions ?? '';
-    this.stockCount      = item.stockCount;
-    this.isActive        = item.isActive;
+    this.name             = item.name;
+    this.category         = item.category;
+    this.description      = item.description;
+    this.price            = item.price;
+    this.mrp              = item.mrp ?? '';
+    this.sizeLabel        = item.sizeLabel;
+    this.fabricType       = item.fabricType;
+    this.fabricGsm        = item.fabricGsm ?? '';
+    this.threadCount      = item.threadCount ?? '';
+    this.fabricMeters     = item.fabricMetersUsed ?? '';
+    this.hasFilling       = item.hasFilling;
+    this.cottonType       = item.cottonType ?? '';
+    this.fillWeight       = item.fillWeightKg ?? '';
+    this.color            = item.color ?? '';
+    this.careInstructions = item.careInstructions ?? '';
+    this.stockCount       = item.stockCount;
+    this.isActive         = item.isActive;
+  }
+
+  // ── Photo upload ──────────────────────────────────────────────────────────
+
+  async pickPhoto(slot: number, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+    input.value = '';   // allow re-picking same file
+
+    this.uploadingSlot = slot;
+    try {
+      const url = await this.cloudinary.uploadImage(file);
+      this.photos[slot] = url;
+    } catch (e: any) {
+      console.error(e);
+      this.showToast('Photo upload failed. Try again.', 'danger');
+    } finally {
+      this.uploadingSlot = -1;
+    }
+  }
+
+  removePhoto(slot: number) {
+    this.photos[slot] = '';
   }
 
   // ── Save ──────────────────────────────────────────────────────────────────
 
   async save() {
-    if (!this.name.trim())       return this.showToast('Enter item name', 'warning');
-    if (!this.category)          return this.showToast('Select a category', 'warning');
-    if (!this.description.trim())return this.showToast('Enter a description', 'warning');
-    if (!+this.price)            return this.showToast('Enter selling price', 'warning');
-    if (!this.sizeLabel.trim())  return this.showToast('Enter size / dimensions', 'warning');
-    if (!this.fabricType)        return this.showToast('Select fabric type', 'warning');
+    if (!this.name.trim())        return this.showToast('Enter item name', 'warning');
+    if (!this.category)           return this.showToast('Select a category', 'warning');
+    if (!this.description.trim()) return this.showToast('Enter a description', 'warning');
+    if (!+this.price)             return this.showToast('Enter selling price', 'warning');
+    if (!this.sizeLabel.trim())   return this.showToast('Enter size / dimensions', 'warning');
+    if (!this.fabricType)         return this.showToast('Select fabric type', 'warning');
     if (this.showFilling && !this.cottonType) return this.showToast('Select fill type', 'warning');
 
     this.saving = true;
